@@ -11,7 +11,9 @@ export default function DeleteModal() {
         <div className="mb-6">Are you sure you want to delete this review?</div>
 
         <div className="flex gap-7 justify-end mt-auto">
-          <button className="px-5 py-2 max-h-[45px] text-base font-medium leading-6 text-white bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer border-[nonepx]">Cancel</button>
+          <button className="px-5 py-2 max-h-[45px] text-base font-medium leading-6 text-white bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer border-[nonepx]">
+            Cancel
+          </button>
           <button className="px-5 py-2 max-h-[45px] text-base font-medium leading-6 text-white bg-red-600 hover:bg-red-700 rounded-md cursor-pointer border-[nonepx]">
             Delete
           </button>
