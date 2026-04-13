@@ -35,6 +35,18 @@ export interface Campground {
   createdAt: string;
 }
 
+export interface Review {
+  _id: string;
+  rating: number;
+  comment?: string;
+  isLocked: boolean; // or is admin modified idk
+  user: { // Only comes with this much apparently
+    _id: string;
+    name: string;
+  }
+  createdAt: string;
+}
+
 export interface APIResponseSingle<T> {
   success: true;
   data: T;
