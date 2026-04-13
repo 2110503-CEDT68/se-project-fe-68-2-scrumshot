@@ -39,7 +39,8 @@ export interface Review {
   _id: string;
   rating: number;
   comment?: string;
-  isLocked: boolean; // or is admin modified idk
+  adminModified: boolean; 
+  // isHidden: boolean; // Technically this exists but will always be true so if you want to use it fine by me
   user: { // Only comes with this much apparently
     _id: string;
     name: string;
