@@ -29,6 +29,8 @@ export default async function CampgroundsPage() {
             description={camp.description}
             pricePerNight={camp.pricePerNight}
             picture={camp.picture}
+            avgRating={camp.avgRating}
+            totalReviews={camp.totalReviews}
           />
         ))}
       </div>
