@@ -33,6 +33,8 @@ export interface Campground {
   pricePerNight: number;
   picture: string;
   createdAt: string;
+  avgRating: number;
+  totalReviews: number;
 }
 
 export interface Review {
