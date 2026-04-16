@@ -1,5 +1,12 @@
 export type Role = 'user' | 'admin';
 
+export interface Review {
+  rating: number;
+  comment?: string;
+  isHidden?: boolean;
+  adminModified?: boolean;
+}
+
 export interface Booking {
   _id: string;
   bookDate: string;
@@ -8,6 +15,7 @@ export interface Booking {
   campground: string | Campground;
   totalPrice: number;
   createdAt: string;
+  review?: Review;
 }
 
 export interface User {
