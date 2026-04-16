@@ -10,14 +10,14 @@ export async function getCampgroundReviews(campgroundId: string) {
   );
 }
 
-interface AdditionalCampground {
+type AdditionalCampground = {
   _id: string;
   name: string;
   province: string;
 }
 
 export async function getReview(id: string) {
-  return fetchWrapper<APIResponseSingle<Review & AdditionalCampground>>(
+  return fetchWrapper<APIResponseSingle<Review & { campground: AdditionalCampground }>>(
     `${backendUrl}/api/v1/reviews/${id}`,
     { method: "GET", },
   );

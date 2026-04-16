@@ -5,6 +5,7 @@ export interface Booking {
   bookDate: string;
   bookEndDate: string;
   user: string;
+  review?: Review;
   campground: string | Campground;
   totalPrice: number;
   createdAt: string;
