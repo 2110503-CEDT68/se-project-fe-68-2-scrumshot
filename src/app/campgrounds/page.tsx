@@ -17,7 +17,7 @@ export default async function CampgroundsPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-center mb-8">Available Campgrounds</h1>
+      <h1 className="text-4xl font-bold text-center mb-8">Available Campgrounds</h1>
       
       <div className="flex flex-col">
         {campgrounds.map((camp) => (
