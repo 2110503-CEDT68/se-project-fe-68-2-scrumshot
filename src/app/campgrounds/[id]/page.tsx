@@ -3,9 +3,15 @@ import Link from 'next/link';
 import { getCampground } from '@/libs/campgrounds';
 import { getCampgroundReviews } from '@/libs/reviews';
 import { Rating } from '@mui/material';
+import ReviewCard from '@/app/components/ReviewCard';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  const session = await getServerSession(authOptions);
+  const currentUserId = (session?.user as any)?._id;
 
   const response = await getCampground(id);
   const reviewResponse = await getCampgroundReviews(id);
@@ -93,7 +99,9 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </div>
         ) : (
           <div className="space-y-6">
-
+            {reviews.map((review) => (
+              <ReviewCard key={review._id} review={review} isUserReview={review.user._id === currentUserId} />
+            ))}
           </div>
         )}
       </div>
