@@ -93,9 +93,18 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
       </div>
 
         {reviewCount === 0 ? (
-          <div className="p-8 text-center text-gray-500 flex flex-col items-center">
-            There's no review yet. Be the first one to review this campground!
-            <div className="mt-4 py-4 w-full border-b-2 border-gray-100"></div>
+          <div className="space-y-6">
+            <div className="p-8 text-center text-gray-500 flex flex-col items-center">
+              There's no review yet. Be the first one to review this campground!
+              <div className="mt-4 py-4 w-full border-b-2 border-gray-100"></div>
+            </div>
+            {/*<div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">Review Preview:</h3>
+              <ReviewCard
+                review={undefined}
+                isUserReview={true}
+              />
+            </div>*/}
           </div>
         ) : (
           <div className="space-y-6">
