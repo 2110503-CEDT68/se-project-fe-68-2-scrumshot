@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCampground } from '@/libs/campgrounds';
 import { getCampgroundReviews } from '@/libs/reviews';
+import { Rating } from '@mui/material';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -9,6 +10,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const response = await getCampground(id);
   const reviewResponse = await getCampgroundReviews(id);
   const reviews = reviewResponse.success ? reviewResponse.data : [];
+  const reviewCount = reviews.length;
 
   if (!response.success) {
     return (
@@ -36,9 +38,17 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           className="object-cover"
         />
       </div>
+      <div className="flex items-center gap-4">
+        <span className="text-xl font-bold text-black">
+          Rating :
+        </span>
+        <Rating 
+          defaultValue={campground.avgRating || 0} precision={0.5} readOnly 
+        />
+      </div>
 
       <div className="flex flex-col md:flex-row gap-8 mb-8">
-        <div className="w-full md:w-1/3 p-6">
+        <div className="w-full md:w-1/3 py-6">
           <ul className="space-y-3 text-m text-gray-700">
             <li><span className="font-semibold">District:</span> {campground.district}</li>
             <li><span className="font-semibold">Province:</span> {campground.province}</li>
@@ -49,40 +59,44 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </ul>
         </div>
 
-        <div className="w-full md:w-2/3 p-6">
-          <p className="text-m leading-7 text-gray-700">{campground.description}</p>
+        <div className="w-full md:w-2/3 py-6">
+          <p className="text-lg leading-7 text-black-700">{campground.description}</p>
         </div>
       </div>
 
-      <div className="flex justify-center mb-10">
+      <div className="flex justify-start mb-10">
         <Link href={`/campgrounds/${campground._id}/booking`}>
-          <button className="bg-[#6750A4] hover:bg-[#524082] text-white text-sm py-3 px-8 rounded-full shadow-lg transition-colors flex items-center gap-2">
-            Book for {campground.pricePerNight} baht / night
+          <button className="bg-[#6750A4] hover:bg-[#524082] text-white text-sm py-3 px-8 rounded-md shadow-lg transition-colors flex items-center gap-2">
+            Book for {campground.pricePerNight} Baht / Night
             <span>✏️</span>
           </button>
         </Link>
       </div>
 
-      <section className="space-y-6">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-semibold">Reviews</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {reviews.length} review{reviews.length === 1 ? '' : 's'} · {campground.avgRating?.toFixed(1)} / 5
-            </p>
+          <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-black">
+            Review :
+          </h2>
+          
+          <div className="bg-[#a865a8] text-white text-l rounded-full flex items-center justify-center min-w-[35px]">
+            {reviewCount}
           </div>
         </div>
+      </div>
 
-        {reviews.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            There's no review in this campground yet.
+        {reviewCount === 0 ? (
+          <div className="p-8 text-center text-gray-500 flex flex-col items-center">
+            There's no review yet. Be the first one to review this campground!
+            <div className="mt-4 py-4 w-full border-b-2 border-gray-100"></div>
           </div>
         ) : (
           <div className="space-y-6">
 
           </div>
         )}
-      </section>
+      </div>
     </main>
   );
 }
