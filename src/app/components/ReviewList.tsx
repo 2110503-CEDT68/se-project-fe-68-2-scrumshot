@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Review } from '@/libs/types';
 import ReviewCard from './ReviewCard';
 import ReviewFormModal from './ReviewFormModal';
@@ -13,8 +12,8 @@ interface ReviewListProps {
   bookingId?: string | null;
 }
 
-export default function ReviewList({ reviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
-  const router = useRouter();
+export default function ReviewList({ reviews: initialReviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
+  const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
@@ -52,8 +51,12 @@ export default function ReviewList({ reviews, currentUserId, canCreateReview, bo
         return;
       }
 
+      // Optimistically add the new review to the list
+      if (result.data) {
+        setReviews((prev) => [result.data, ...prev]);
+      }
+
       closeReviewModal();
-      router.refresh();
     } catch (error) {
       console.error('Review creation error:', error);
     }
