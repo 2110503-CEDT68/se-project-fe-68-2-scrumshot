@@ -6,6 +6,7 @@ import { Rating } from '@mui/material';
 import ReviewCard from '@/app/components/ReviewCard';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
+import ReviewList from '@/app/components/ReviewList';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,17 +31,19 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
     );
   }
 
+  
+
   const campground = response.data;
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-6">{campground.name}</h1>
-      
+
       <div className="relative w-full h-[300px] mb-8 rounded-3xl overflow-hidden shadow-lg bg-gray-200">
-        <Image 
-          src={campground.picture || '/img/banner.jpg'} 
-          alt={campground.name || 'Campground Image'} 
-          fill 
+        <Image
+          src={campground.picture || '/img/banner.jpg'}
+          alt={campground.name || 'Campground Image'}
+          fill
           className="object-cover"
         />
       </div>
@@ -48,8 +51,8 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
         <span className="text-xl font-bold text-black">
           Rating :
         </span>
-        <Rating 
-          defaultValue={campground.avgRating || 0} precision={0.5} readOnly 
+        <Rating
+          defaultValue={campground.avgRating || 0} precision={0.5} readOnly
         />
       </div>
 
@@ -82,37 +85,17 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-black">
-            Review :
-          </h2>
-          
-          <div className="bg-[#a865a8] text-white text-l rounded-full flex items-center justify-center min-w-[35px]">
-            {reviewCount}
+            <h2 className="text-xl font-bold text-black">
+              Review :
+            </h2>
+
+            <div className="bg-[#a865a8] text-white text-l rounded-full flex items-center justify-center min-w-[35px]">
+              {reviewCount}
+            </div>
           </div>
         </div>
-      </div>
 
-        {reviewCount === 0 ? (
-          <div className="space-y-6">
-            <div className="p-8 text-center text-gray-500 flex flex-col items-center">
-              There's no review yet. Be the first one to review this campground!
-              <div className="mt-4 py-4 w-full border-b-2 border-gray-100"></div>
-            </div>
-            {/*<div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Review Preview:</h3>
-              <ReviewCard
-                review={undefined}
-                isUserReview={true}
-              />
-            </div>*/}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {reviews.map((review) => (
-              <ReviewCard key={review._id} review={review} isUserReview={review.user._id === currentUserId} />
-            ))}
-          </div>
-        )}
+        <ReviewList reviews={reviews} currentUserId={currentUserId} />
       </div>
     </main>
   );
