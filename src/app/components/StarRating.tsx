@@ -5,9 +5,10 @@ import Rating from '@mui/material/Rating';
 interface StarRatingProps {
   rating?: number;
   onRatingChange?: (rating: number) => void;
+  disabled?: boolean;
 }
 
-function StarRating({ rating = 5, onRatingChange }: StarRatingProps) {
+function StarRating({ rating = 5, onRatingChange, disabled }: StarRatingProps) {
   return (
     <Rating
       name="star-rating"
@@ -19,6 +20,7 @@ function StarRating({ rating = 5, onRatingChange }: StarRatingProps) {
           onRatingChange?.(value);
         }
       }}
+      disabled={disabled}
     />
   );
 }
