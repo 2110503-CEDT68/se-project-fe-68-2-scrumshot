@@ -1,9 +1,10 @@
 'use client'
 import { register } from "@/libs/auth";
-import { Input, Button, CircularProgress, Backdrop } from "@mui/material"
+import { Input, Button, CircularProgress, Backdrop, Checkbox } from "@mui/material"
 import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 function RegisterForm() {
   const [name, setName] = useState<string>("");
@@ -11,62 +12,59 @@ function RegisterForm() {
   const [phone, setPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirm, setConfirm] = useState<string>("");
+  const [agreeToTerms, setAgreeToTerms] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  
+  const validate = (): [boolean, string | null] => {
+    
+    if (name.length === 0) return [false, "Name is required"];
+    if (email.length === 0) return [false, "Email is required"];
+    if (phone.length === 0) return [false, "Phone is required"];
+    if (password.length === 0) return [false, "Password is required"];
+    if (password !== confirm) return [false, "Passwords do not match"];
+    if (!agreeToTerms) return [false, "You must agree to the terms and conditions"];
+    
+    return [true, null];
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // validate form data
-    if (password !== confirm) {
-      setErrorMessage("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-    
-    if (name.length === 0) {
-      setErrorMessage("Name is required");
-      setLoading(false);
-      return;
-    }
-    
-    if (email.length === 0) {
-      setErrorMessage("Email is required");
-      setLoading(false);
-      return;
-    }
-    
-    if (phone.length === 0) {
-      setErrorMessage("Phone is required");
-      setLoading(false);
-      return;
-    }
-    
-    setErrorMessage(null);
-    
-    // Submit
-    const result = await register(name, email, password, phone, "user");
-    if (!result.success) {
-      setErrorMessage(result.message);
-      setLoading(false);
-      return;
-    }
-
-    // sign in with next auth
-    const signInResponse = await signIn("credentials", {
-      email: email,
-      password: password,
-      redirect: true,
-      callbackUrl: callbackUrl
-    });
-    
-    if (signInResponse?.error) {
-      setErrorMessage(signInResponse.error);
+    try {
+      const [valid, errorMsg] = validate();
+      if (!valid) {
+        setErrorMessage(errorMsg); // validation errors
+        return;
+      }
+      
+      setErrorMessage(null);
+      
+      // Submit
+      const result = await register(name, email, password, phone, "user");
+      if (!result.success) {
+        setErrorMessage(result.message); // registration errors
+        return;
+      }
+  
+      // sign in with next auth
+      const signInResponse = await signIn("credentials", {
+        email: email,
+        password: password,
+        redirect: true,
+        callbackUrl: callbackUrl
+      });
+      
+      if (signInResponse?.error) {
+        setErrorMessage(signInResponse.error); // signin errors
+      }
+    } finally {
       setLoading(false);
     }
+    
   };
   
   return (
@@ -108,6 +106,10 @@ function RegisterForm() {
           <p className="font-medium text-xl">Confirm Password</p>
           <Input type="password" placeholder="Confirm Password" name="confirm" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         </div>
+        <label htmlFor="agreeToTerms" className="flex justify-center items-center">
+          <p className="font-light text-gray-500 text-sm">By checking this box you agree to the <Link href="/privacy" className="underline">Privacy Policy</Link></p>
+          <Checkbox checked={agreeToTerms} name="agreeToTerms" onChange={(e) => setAgreeToTerms(e.target.checked)} />
+        </label>
         <div className="flex flex-col gap-2 items-center w-full">
           <Button type="submit" variant="contained" className="w-fit" 
             disabled={loading}

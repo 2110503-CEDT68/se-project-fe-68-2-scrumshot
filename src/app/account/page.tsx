@@ -11,7 +11,7 @@ function AccountContent() {
 
   const callbackUrl = searchParams.get("callbackUrl");
 
-  const signInUrl = callbackUrl ? `/api/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/api/auth/signin';
+  const signInUrl = callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/signin';
   const registerUrl = callbackUrl ? `/register?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/register';
 
   return (
