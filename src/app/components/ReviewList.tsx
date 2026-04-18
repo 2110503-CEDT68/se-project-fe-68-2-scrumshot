@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Review } from '@/libs/types';
 import ReviewCard from './ReviewCard';
 import ReviewFormModal from './ReviewFormModal';
@@ -13,6 +14,7 @@ interface ReviewListProps {
 }
 
 export default function ReviewList({ reviews: initialReviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
+  const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -52,8 +54,16 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
       }
 
       // Optimistically add the new review to the list
-      if (result.data) {
-        setReviews((prev) => [result.data, ...prev]);
+      if (result.data && session?.user) {
+        const optimisticReview: Review = {
+          ...result.data,
+          createdAt: new Date().toISOString(),
+          user: {
+            _id: (session.user as any)._id || currentUserId || '',
+            name: session.user.name || 'Anonymous',
+          },
+        };
+        setReviews((prev) => [optimisticReview, ...prev]);
       }
 
       closeReviewModal();
