@@ -47,7 +47,7 @@ export default function ReviewCard({ review, isUserReview, onEdit, onDelete }: {
         </div>
 
         <div className="flex items-center gap-2">
-          <Rating name="half-rating" defaultValue={displayReview.rating || 0} precision={0.5} readOnly />
+          <Rating name="half-rating" value={displayReview.rating || 0} precision={0.5} readOnly />
           {isUserReview && (
             <div className="relative">
               <button

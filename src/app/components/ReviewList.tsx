@@ -33,28 +33,35 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
 
   const handleSubmitReview = async (data: { rating: number; reviewText: string }) => {
     if (!bookingId) {
-      console.error('Missing bookingId. Review cannot be created without a booking.');
+      console.error('Missing bookingId. Review cannot be created or edited without a booking.');
       return;
     }
 
+    const isEditing = !!selectedReview;
+
     try {
       const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, rating: data.rating, comment: data.reviewText }),
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        console.error('Review creation failed:', result);
+        console.error(`Review ${isEditing ? 'update' : 'creation'} failed:`, result);
         return;
       }
 
-      // Optimistically add the new review to the list
-      if (result.data && session?.user) {
+      if (isEditing) {
+        setReviews((prev) =>
+          prev.map((r) =>
+            r._id === selectedReview._id
+              ? { ...r, rating: data.rating, comment: data.reviewText, adminModified: true }
+              : r
+          )
+        );
+      } else if (result.data && session?.user) {
         const optimisticReview: Review = {
           ...result.data,
           createdAt: new Date().toISOString(),
@@ -68,7 +75,7 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
 
       closeReviewModal();
     } catch (error) {
-      console.error('Review creation error:', error);
+      console.error('Review submit error:', error);
     }
   };
 
