@@ -7,10 +7,13 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_UR
 
 // --- GETTERS ---
 
-export async function getCampgroundReviews(campgroundId: string) {
+export async function getCampgroundReviews(campgroundId: string, token?: string) {
   return fetchWrapper<APIResponseMultiple<Review>>(
     `${backendUrl}/api/v1/campgrounds/${campgroundId}/reviews`,
-    { method: "GET" }
+    {
+      method: "GET",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
   );
 }
 

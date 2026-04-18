@@ -19,7 +19,7 @@ export default function ReviewCard({
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const canManageReview = isAdmin || isUserReview;
-  //don't ask me why this is here, I think this is a edit button?
+  const canEditReview = canManageReview && !review?.adminModified && !review?.isLocked;
 
   // Template review data matching booking structure
   const templateReview = {
@@ -52,6 +52,8 @@ export default function ReviewCard({
           <p className="text-sm text-gray-500 mt-1">
             {(new Date(displayReview.createdAt)).toLocaleDateString()}
             {displayReview.adminModified ? " (Edited By Admin)" : ""}
+            {displayReview.isHidden ? " [Hidden]" : ""}
+            {displayReview.isLocked ? " [Locked]" : ""}
           </p>
         </div>
 
@@ -73,8 +75,7 @@ export default function ReviewCard({
               </button>
               {showMenu && (
                 <div className="absolute right-0 top-full mt-2 w-32 border border-gray-200 bg-white shadow-lg z-10">
-                  {
-                    review?.adminModified ? null : (
+                  {canEditReview && (
                     <button
                       onClick={() => {
                         onEdit?.();
@@ -84,8 +85,7 @@ export default function ReviewCard({
                     >
                       Edit
                     </button>
-                    )
-                  }
+                  )}
                   <button
                     onClick={() => {
                       onDelete?.();

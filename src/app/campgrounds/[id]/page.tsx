@@ -17,12 +17,19 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const currentUserId = (session?.user as any)?._id;
 
   const response = await getCampground(id);
-  const reviewResponse = await getCampgroundReviews(id);
+  const reviewResponse = await getCampgroundReviews(id, session?.user?.backendToken || '');
   const reviews = reviewResponse.success ? reviewResponse.data : [];
   const reviewCount = reviews.length;
-  
-  const userBookings = await getAllBookings(session?.user.backendToken || '');
-  const sameCampgroundBookings: Booking[] = [];//userBookings.success ? userBookings.data.filter(b => b.campground._id === id && (!b.review || b.review?.)) : [];
+
+  const userBookings = await getAllBookings(session?.user?.backendToken || '');
+  const sameCampgroundBookings: Booking[] = userBookings.success
+    ? userBookings.data.filter(
+        (b) =>
+          b.campground._id === id &&
+          new Date(b.bookEndDate) < new Date() &&
+          (!b.review || !b.review.rating || b.review.isHidden)
+      )
+    : [];
   const hasBooked = sameCampgroundBookings.length > 0;
 
   if (!response.success) {

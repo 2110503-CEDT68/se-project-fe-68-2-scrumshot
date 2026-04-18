@@ -42,7 +42,9 @@ export interface Review {
   _id: string;
   rating: number;
   comment?: string;
-  adminModified: boolean; 
+  adminModified: boolean;
+  isHidden?: boolean;
+  isLocked?: boolean;
   user: { // Only comes with this much apparently
     _id: string;
     name: string;
