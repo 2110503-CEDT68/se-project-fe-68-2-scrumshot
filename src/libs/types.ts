@@ -12,6 +12,7 @@ export interface Booking {
   bookDate: string;
   bookEndDate: string;
   user: string;
+  review?: Review;
   campground: string | Campground;
   totalPrice: number;
   createdAt: string;
@@ -40,6 +41,21 @@ export interface Campground {
   region: string;
   pricePerNight: number;
   picture: string;
+  createdAt: string;
+  avgRating: number;
+  totalReviews: number;
+}
+
+export interface Review {
+  _id: string;
+  rating: number;
+  comment?: string;
+  adminModified: boolean; 
+  // isHidden: boolean; // Technically this exists but will always be true so if you want to use it fine by me
+  user: { // Only comes with this much apparently
+    _id: string;
+    name: string;
+  }
   createdAt: string;
 }
 
