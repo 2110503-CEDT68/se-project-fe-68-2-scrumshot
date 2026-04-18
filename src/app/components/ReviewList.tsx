@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { Review } from '@/libs/types';
-import ReviewCard from './ReviewCard';
-import ReviewFormModal from './ReviewFormModal';
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { Review } from "@/libs/types";
+import ReviewCard from "./ReviewCard";
+import ReviewFormModal from "./ReviewFormModal";
 
 interface ReviewListProps {
   reviews: Review[];
@@ -13,13 +13,20 @@ interface ReviewListProps {
   bookingId?: string | null;
 }
 
-export default function ReviewList({ reviews: initialReviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
+export default function ReviewList({
+  reviews: initialReviews,
+  currentUserId,
+  canCreateReview,
+  bookingId,
+}: ReviewListProps) {
   const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
-  const userHasReview = reviews.some((review) => review.user._id === currentUserId);
+  const userHasReview = reviews.some(
+    (review) => review.user._id === currentUserId,
+  );
 
   const openReviewModal = (review?: Review | null) => {
     setSelectedReview(review ?? null);
@@ -31,43 +38,69 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
     setIsModalOpen(false);
   };
 
-  const handleSubmitReview = async (data: { rating: number; reviewText: string }) => {
-    if (!bookingId) {
-      console.error('Missing bookingId. Review cannot be created or edited without a booking.');
+  const handleSubmitReview = async (data: {
+    rating: number;
+    reviewText: string;
+  }) => {
+    const isEditing = !!selectedReview;
+    const targetBookingId = isEditing ? selectedReview?._id : bookingId;
+
+    if (!targetBookingId) {
+      console.error(
+        "Missing bookingId. Review cannot be created or edited without a booking.",
+      );
       return;
     }
 
-    const isEditing = !!selectedReview;
-
     try {
-      const response = await fetch('/api/reviews', {
-        method: isEditing ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, rating: data.rating, comment: data.reviewText }),
+      const response = await fetch("/api/reviews", {
+        method: isEditing ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId: targetBookingId,
+          rating: data.rating,
+          comment: data.reviewText,
+          
+        }),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
 
       if (!response.ok || !result.success) {
-        console.error(`Review ${isEditing ? 'update' : 'creation'} failed:`, result);
+        console.error(
+          `Review ${isEditing ? "update" : "creation"} failed:`,
+          Object.keys(result).length
+            ? result
+            : { status: response.status, statusText: response.statusText },
+        );
         return;
       }
 
       if (isEditing) {
+        const updatedAdminModified =
+          typeof result?.data?.adminModified === "boolean"
+            ? result.data.adminModified
+            : false;
+
         setReviews((prev) =>
           prev.map((r) =>
             r._id === selectedReview._id
-              ? { ...r, rating: data.rating, comment: data.reviewText, adminModified: true }
-              : r
-          )
+              ? {
+                  ...r,
+                  rating: data.rating,
+                  comment: data.reviewText,
+                  adminModified: updatedAdminModified,
+                }
+              : r,
+          ),
         );
       } else if (result.data && session?.user) {
         const optimisticReview: Review = {
           ...result.data,
           createdAt: new Date().toISOString(),
           user: {
-            _id: (session.user as any)._id || currentUserId || '',
-            name: session.user.name || 'Anonymous',
+            _id: (session.user as any)._id || currentUserId || "",
+            name: session.user.name || "Anonymous",
           },
         };
         setReviews((prev) => [optimisticReview, ...prev]);
@@ -75,7 +108,7 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
 
       closeReviewModal();
     } catch (error) {
-      console.error('Review submit error:', error);
+      console.error("Review submit error:", error);
     }
   };
 
@@ -104,8 +137,9 @@ export default function ReviewList({ reviews: initialReviews, currentUserId, can
               key={review._id}
               review={review}
               isUserReview={review.user._id === currentUserId}
+              isAdmin={session?.user?.role === "admin"}
               onEdit={() => openReviewModal(review)}
-              onDelete={() => console.log('Delete review clicked', review._id)}
+              onDelete={() => console.log("Delete review clicked", review._id)}
             />
           ))}
         </div>
