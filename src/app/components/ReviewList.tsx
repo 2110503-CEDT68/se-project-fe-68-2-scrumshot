@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { Booking, Review } from "@/libs/types";
 import ReviewCard from "./ReviewCard";
 import ReviewFormModal from "./ReviewFormModal";
-import { addReview, updateReview } from "@/libs/reviews";
+import DeleteModal from "./DeleteModal";
+import { addReview, updateReview, deleteReview } from "@/libs/reviews";
 
 interface ReviewListProps {
   reviews: Review[];
@@ -23,10 +24,12 @@ export default function ReviewList({
   const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [reviewToDeleteId, setReviewToDeleteId] = useState<string | null>(null);
 
   const userHasReview = reviews.some(
-    (review) => review.user._id === currentUserId,
+    (review) => review.user?._id === currentUserId,
   );
 
   const openReviewModal = (review?: Review | null) => {
@@ -37,6 +40,16 @@ export default function ReviewList({
   const closeReviewModal = () => {
     setSelectedReview(null);
     setIsModalOpen(false);
+  };
+
+  const openDeleteModal = (reviewId: string) => {
+    setReviewToDeleteId(reviewId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setReviewToDeleteId(null);
+    setIsDeleteModalOpen(false);
   };
 
   const handleSubmitReview = async (data: {
@@ -70,7 +83,7 @@ export default function ReviewList({
       if (isEditing) {
         setReviews((prev) =>
           prev.map((r) =>
-            r._id === selectedReview._id ? { ...response.data }
+            r._id === selectedReview?._id ? { ...r, ...response.data }
             : r,
           ),
         );
@@ -81,6 +94,24 @@ export default function ReviewList({
       closeReviewModal();
     } catch (error) {
       console.error("Review submit error:", error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!reviewToDeleteId) return;
+
+    try {
+      const response = await deleteReview(reviewToDeleteId, session?.user?.backendToken || '');
+      
+      if (!response.success) {
+        console.error(`Review deletion failed: ${response.message}`);
+        return;
+      }
+
+      setReviews((prev) => prev.filter((r) => r._id !== reviewToDeleteId));
+      closeDeleteModal();
+    } catch (error) {
+      console.error("Review delete error:", error);
     }
   };
 
@@ -110,10 +141,10 @@ export default function ReviewList({
             <ReviewCard
               key={review._id}
               review={review}
-              isUserReview={review.user._id === currentUserId}
+              isUserReview={review.user?._id === currentUserId}
               isAdmin={session?.user?.role === "admin"}
               onEdit={() => openReviewModal(review)}
-              onDelete={() => console.log("Delete review clicked", review._id)}
+              onDelete={() => openDeleteModal(review._id)}
             />
           ))}
         </div>
@@ -125,6 +156,12 @@ export default function ReviewList({
         onSubmit={handleSubmitReview}
         onCancel={closeReviewModal}
         bookingId={selectedReview?._id || bookings[0]?._id}
+      />
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteConfirm}
       />
     </>
   );

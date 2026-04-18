@@ -47,7 +47,7 @@ export default function ReviewCard({
       <div className="flex flex-row justify-between items-center gap-3 flex-wrap" >
         <div className="flex flex-row gap-3 items-center">
           <p className="text-lg font-semibold text-gray-900">
-            {displayReview.user.name} {isUserReview ? " (You)" : ""}
+            {displayReview.user?.name} {isUserReview ? " (You)" : ""}
           </p>
           <p className="text-sm text-gray-500 mt-1">
             {(new Date(displayReview.createdAt)).toLocaleDateString()}
