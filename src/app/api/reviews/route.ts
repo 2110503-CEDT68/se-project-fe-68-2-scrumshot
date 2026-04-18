@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, message: 'Invalid review payload' }, { status: 400 });
   }
 
-  console.log(await getBookingReview(bookingId, token.backendToken))
-  await deleteReview(bookingId, token.backendToken)
+  //console.log(await getBookingReview(bookingId, token.backendToken))
+  //await deleteReview(bookingId, token.backendToken)
 
   const result = await postReview(bookingId, rating, comment, token.backendToken);
   console.log(result)
