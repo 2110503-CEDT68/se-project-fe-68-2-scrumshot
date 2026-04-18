@@ -8,9 +8,10 @@ import ReviewFormModal from './ReviewFormModal';
 interface ReviewListProps {
   reviews: Review[];
   currentUserId?: string;
+  canCreateReview?: boolean;
 }
 
-export default function ReviewList({ reviews, currentUserId }: ReviewListProps) {
+export default function ReviewList({ reviews, currentUserId, canCreateReview }: ReviewListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
@@ -33,7 +34,7 @@ export default function ReviewList({ reviews, currentUserId }: ReviewListProps) 
 
   return (
     <>
-      {!userHasReview && (
+      {!userHasReview && canCreateReview && (
         <button
           onClick={() => openReviewModal(null)}
           className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"

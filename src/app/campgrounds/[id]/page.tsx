@@ -7,6 +7,7 @@ import ReviewCard from '@/app/components/ReviewCard';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import ReviewList from '@/app/components/ReviewList';
+import { getAllBookings } from '@/libs/bookings';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,6 +19,13 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const reviewResponse = await getCampgroundReviews(id);
   const reviews = reviewResponse.success ? reviewResponse.data : [];
   const reviewCount = reviews.length;
+  
+  const booking = await getAllBookings(session?.user.backendToken || '');
+  console.log('Bookings data:', booking, session?.user.backendToken );
+  const sameCampgroundBooking = booking.success ? booking.data.find((b) => b.campground._id === id) : null;
+  const hasBooked = !!sameCampgroundBooking;
+
+  const canCreateReview = currentUserId && !reviews.some((review) => review.user._id === currentUserId);
 
   if (!response.success) {
     return (
@@ -95,7 +103,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </div>
         </div>
 
-        <ReviewList reviews={reviews} currentUserId={currentUserId} />
+        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} />
       </div>
     </main>
   );
