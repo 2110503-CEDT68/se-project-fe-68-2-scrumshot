@@ -13,7 +13,7 @@ export interface Booking {
   bookEndDate: string;
   user: string;
   review?: Review;
-  campground: string | Campground;
+  campground: Campground;
   totalPrice: number;
   createdAt: string;
   review?: Review;
