@@ -22,10 +22,10 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   
   const booking = await getAllBookings(session?.user.backendToken || '');
   console.log('Bookings data:', booking, session?.user.backendToken );
-  const sameCampgroundBooking = booking.success ? booking.data.find((b) => b.campground._id === id) : null;
+  const sameCampgroundBooking = booking.success ? booking.data.find((b) => b.campground._id === id)??null : null;
   const hasBooked = !!sameCampgroundBooking;
 
-  const canCreateReview = currentUserId && !reviews.some((review) => review.user._id === currentUserId);
+  const bookingId = sameCampgroundBooking?._id || null;
 
   if (!response.success) {
     return (
@@ -103,7 +103,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </div>
         </div>
 
-        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} />
+        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} bookingId={bookingId}/>
       </div>
     </main>
   );

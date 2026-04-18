@@ -9,9 +9,10 @@ interface ReviewListProps {
   reviews: Review[];
   currentUserId?: string;
   canCreateReview?: boolean;
+  bookingId?: string | null;
 }
 
-export default function ReviewList({ reviews, currentUserId, canCreateReview }: ReviewListProps) {
+export default function ReviewList({ reviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
