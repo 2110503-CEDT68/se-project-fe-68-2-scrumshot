@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import ReviewList from '@/app/components/ReviewList';
 import { getAllBookings } from '@/libs/bookings';
+import { Booking } from '@/libs/types';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +22,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const reviewCount = reviews.length;
   
   const userBookings = await getAllBookings(session?.user.backendToken || '');
-  const sameCampgroundBookings = userBookings.success ? userBookings.data.filter(b => b.campground._id === id && !b.review?.adminModified) : [];
+  const sameCampgroundBookings: Booking[] = [];//userBookings.success ? userBookings.data.filter(b => b.campground._id === id && (!b.review || b.review?.)) : [];
   const hasBooked = sameCampgroundBookings.length > 0;
 
   if (!response.success) {

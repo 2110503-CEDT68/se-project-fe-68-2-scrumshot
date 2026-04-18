@@ -18,7 +18,7 @@ export default function ReviewCard({
   onDelete?: () => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  const canManageReview = isAdmin || (isUserReview && !review.adminModified);
+  const canManageReview = isAdmin || isUserReview;
   //don't ask me why this is here, I think this is a edit button?
 
   // Template review data matching booking structure
@@ -73,15 +73,19 @@ export default function ReviewCard({
               </button>
               {showMenu && (
                 <div className="absolute right-0 top-full mt-2 w-32 border border-gray-200 bg-white shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      onEdit?.();
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    Edit
-                  </button>
+                  {
+                    review?.adminModified ? null : (
+                    <button
+                      onClick={() => {
+                        onEdit?.();
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Edit
+                    </button>
+                    )
+                  }
                   <button
                     onClick={() => {
                       onDelete?.();

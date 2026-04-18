@@ -26,7 +26,6 @@ export default function ReviewList({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [reviewToDeleteId, setReviewToDeleteId] = useState<string | null>(null);
 
   const userHasReview = reviews.some(
     (review) => review.user?._id === currentUserId,
@@ -42,13 +41,13 @@ export default function ReviewList({
     setIsModalOpen(false);
   };
 
-  const openDeleteModal = (reviewId: string) => {
-    setReviewToDeleteId(reviewId);
+  const openDeleteModal = (review: Review) => {
+    setSelectedReview(review);
     setIsDeleteModalOpen(true);
   };
 
   const closeDeleteModal = () => {
-    setReviewToDeleteId(null);
+    setSelectedReview(null);
     setIsDeleteModalOpen(false);
   };
 
@@ -68,23 +67,34 @@ export default function ReviewList({
 
     try {
       let response;
-      if (isEditing) 
-        response = await updateReview(targetBookingId, data.rating, data.reviewText, session?.user?.backendToken || '')
+      if (isEditing)
+        response = await updateReview(
+          targetBookingId,
+          data.rating,
+          data.reviewText,
+          session?.user?.backendToken || "",
+        );
       else
-        response = await addReview(targetBookingId, data.rating, data.reviewText, session?.user?.backendToken || '')
-      
+        response = await addReview(
+          targetBookingId,
+          data.rating,
+          data.reviewText,
+          session?.user?.backendToken || "",
+        );
+
       if (!response.success) {
-        console.error(`Review ${isEditing ? "update" : "creation"} failed: ${response.message}`,);
+        console.error(
+          `Review ${isEditing ? "update" : "creation"} failed: ${response.message}`,
+        );
         return; // TODO: notify the user too ok?
       }
-      
-      console.log(response.data)
+
+      console.log(response.data);
 
       if (isEditing) {
         setReviews((prev) =>
           prev.map((r) =>
-            r._id === selectedReview?._id ? { ...r, ...response.data }
-            : r,
+            r._id === selectedReview?._id ? { ...r, ...response.data } : r,
           ),
         );
       } else {
@@ -98,17 +108,20 @@ export default function ReviewList({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!reviewToDeleteId) return;
+    if (!selectedReview) return;
 
     try {
-      const response = await deleteReview(reviewToDeleteId, session?.user?.backendToken || '');
-      
+      const response = await deleteReview(
+        selectedReview._id,
+        session?.user?.backendToken || "",
+      );
+
       if (!response.success) {
         console.error(`Review deletion failed: ${response.message}`);
         return;
       }
 
-      setReviews((prev) => prev.filter((r) => r._id !== reviewToDeleteId));
+      setReviews((prev) => prev.filter((r) => r._id !== selectedReview._id));
       closeDeleteModal();
     } catch (error) {
       console.error("Review delete error:", error);
@@ -144,7 +157,7 @@ export default function ReviewList({
               isUserReview={review.user?._id === currentUserId}
               isAdmin={session?.user?.role === "admin"}
               onEdit={() => openReviewModal(review)}
-              onDelete={() => openDeleteModal(review._id)}
+              onDelete={() => openDeleteModal(review)}
             />
           ))}
         </div>
@@ -162,6 +175,7 @@ export default function ReviewList({
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         onConfirm={handleDeleteConfirm}
+        isFinalDeletion={selectedReview?.adminModified}
       />
     </>
   );
