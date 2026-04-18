@@ -5,6 +5,7 @@ import { Review } from '@/libs/types';
 import ReviewCard from './ReviewCard';
 import ReviewFormModal from './ReviewFormModal';
 
+
 interface ReviewListProps {
   reviews: Review[];
   currentUserId?: string;
@@ -29,7 +30,7 @@ export default function ReviewList({ reviews, currentUserId, canCreateReview, bo
   };
 
   const handleSubmitReview = (data: { rating: number; reviewText: string }) => {
-    console.log('Submit review data:', data, selectedReview ? 'editing' : 'creating');
+    console.log('Submitting review:', data, 'for booking ID:', bookingId);
     closeReviewModal();
   };
 
