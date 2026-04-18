@@ -51,6 +51,15 @@ export interface Review {
   createdAt: string;
 }
 
+export interface Review {
+  _id: string;
+  rating: number;
+  comment: string;
+  user: string | User;
+  booking: string | Booking;
+  createdAt: string;
+}
+
 export interface APIResponseSingle<T> {
   success: true;
   data: T;
