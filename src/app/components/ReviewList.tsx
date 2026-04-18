@@ -37,7 +37,7 @@ export default function ReviewList({ reviews, currentUserId, canCreateReview }: 
       {!userHasReview && canCreateReview && (
         <button
           onClick={() => openReviewModal(null)}
-          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+          className="rounded-xl px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 border border-[#6750A4] text-[#6750A4] hover:bg-[#6750A4] hover:text-blue-900 transition-colors duration-200" 
         >
           Create New Review
         </button>
