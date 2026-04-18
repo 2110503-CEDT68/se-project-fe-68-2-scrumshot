@@ -20,12 +20,9 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const reviews = reviewResponse.success ? reviewResponse.data : [];
   const reviewCount = reviews.length;
   
-  const booking = await getAllBookings(session?.user.backendToken || '');
-  console.log('Bookings data:', booking, session?.user.backendToken );
-  const sameCampgroundBooking = booking.success ? booking.data.find((b) => b.campground._id === id)??null : null;
-  const hasBooked = !!sameCampgroundBooking;
-
-  const bookingId = sameCampgroundBooking?._id || null;
+  const userBookings = await getAllBookings(session?.user.backendToken || '');
+  const sameCampgroundBookings = userBookings.success ? userBookings.data.filter(b => b.campground._id === id && !b.review?.adminModified) : [];
+  const hasBooked = sameCampgroundBookings.length > 0;
 
   if (!response.success) {
     return (
@@ -103,7 +100,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </div>
         </div>
 
-        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} bookingId={bookingId}/>
+        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} bookings={sameCampgroundBookings}/>
       </div>
     </main>
   );

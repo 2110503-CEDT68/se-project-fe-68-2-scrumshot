@@ -41,30 +41,17 @@ export default function ReviewCard({
 
   // change here if you want to use template
   const displayReview = review;
-  {
-    /*|| templateReview;*/
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
+  
   return (
-    <div className={`rounded-[28px]`}>
-      <div
-        className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 py-5`}
-      >
+    <div className={`border p-5 rounded-md border-gray-200 ${isUserReview ? "bg-purple-50" : ""}`}>
+      <div className="flex flex-row justify-between items-center gap-3 flex-wrap" >
         <div className="flex flex-row gap-3 items-center">
           <p className="text-lg font-semibold text-gray-900">
-            {displayReview.user.name}
+            {displayReview.user.name} {isUserReview ? " (You)" : ""}
           </p>
           <p className="text-sm text-gray-500 mt-1">
-            {formatDate(displayReview.createdAt)}
-            {displayReview.adminModified ? " (Edited)" : ""}
+            {(new Date(displayReview.createdAt)).toLocaleDateString()}
+            {displayReview.adminModified ? " (Edited By Admin)" : ""}
           </p>
         </div>
 
@@ -85,7 +72,7 @@ export default function ReviewCard({
                 ⋯
               </button>
               {showMenu && (
-                <div className="absolute right-0 top-full mt-2 w-32 rounded-2xl border border-gray-200 bg-white shadow-lg z-10">
+                <div className="absolute right-0 top-full mt-2 w-32 border border-gray-200 bg-white shadow-lg z-10">
                   <button
                     onClick={() => {
                       onEdit?.();
@@ -110,14 +97,17 @@ export default function ReviewCard({
           )}
         </div>
       </div>
+      {
+        displayReview.comment && (
+        <div
+          className={`rounded-md shadow-sm p-6 mt-4 `}
+        >
+          <p className="text-gray-700 leading-7 ">
+            {displayReview.comment}
+          </p>
+        </div>
+      )}
 
-      <div
-        className={`rounded-[16px] shadow-lg p-6 ${isUserReview ? "bg-purple-50" : "bg-gray-50"}`}
-      >
-        <p className="text-gray-700 leading-7 ">
-          {displayReview.comment || "No review comment available."}
-        </p>
-      </div>
     </div>
   );
 }

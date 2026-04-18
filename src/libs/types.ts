@@ -43,8 +43,12 @@ export interface Review {
   rating: number;
   comment?: string;
   adminModified: boolean; 
-  // isHidden: boolean; // Technically this exists but will always be true so if you want to use it fine by me
   user: { // Only comes with this much apparently
+    _id: string;
+    name: string;
+  }
+  createdAt: string;
+  campground: {
     _id: string;
     name: string;
   }

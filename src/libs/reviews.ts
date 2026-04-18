@@ -3,12 +3,7 @@ import { APIResponseMultiple, APIResponseSingle, Review } from "./types";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL;
 
-/** Type for additional campground info included in some review responses */
-type AdditionalCampground = {
-  _id: string;
-  name: string;
-  province: string;
-}
+
 
 // --- GETTERS ---
 
@@ -20,7 +15,7 @@ export async function getCampgroundReviews(campgroundId: string) {
 }
 
 export async function getReview(id: string) {
-  return fetchWrapper<APIResponseSingle<Review & { campground: AdditionalCampground }>>(
+  return fetchWrapper<APIResponseSingle<Review>>(
     `${backendUrl}/api/v1/reviews/${id}`,
     { method: "GET" }
   );
@@ -39,7 +34,7 @@ export async function getBookingReview(bookingId: string, token: string) {
 
 // --- MUTATIONS ---
 
-export async function postReview(bookingId: string, rating: number, comment: string, token: string) {
+export async function addReview(bookingId: string, rating: number, comment: string, token: string) {
   return fetchWrapper<APIResponseSingle<Review>>(
     `${backendUrl}/api/v1/bookings/${bookingId}/review`, {
       method: "POST",

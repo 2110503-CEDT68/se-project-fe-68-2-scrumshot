@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { Review } from "@/libs/types";
+import { Booking, Review } from "@/libs/types";
 import ReviewCard from "./ReviewCard";
 import ReviewFormModal from "./ReviewFormModal";
+import { addReview, updateReview } from "@/libs/reviews";
 
 interface ReviewListProps {
   reviews: Review[];
   currentUserId?: string;
   canCreateReview?: boolean;
-  bookingId?: string | null;
+  bookings: Booking[];
 }
 
 export default function ReviewList({
   reviews: initialReviews,
   currentUserId,
   canCreateReview,
-  bookingId,
+  bookings,
 }: ReviewListProps) {
   const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
@@ -43,7 +44,7 @@ export default function ReviewList({
     reviewText: string;
   }) => {
     const isEditing = !!selectedReview;
-    const targetBookingId = isEditing ? selectedReview?._id : bookingId;
+    const targetBookingId = isEditing ? selectedReview?._id : bookings[0]?._id;
 
     if (!targetBookingId) {
       console.error(
@@ -53,57 +54,28 @@ export default function ReviewList({
     }
 
     try {
-      const response = await fetch("/api/reviews", {
-        method: isEditing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bookingId: targetBookingId,
-          rating: data.rating,
-          comment: data.reviewText,
-          
-        }),
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok || !result.success) {
-        console.error(
-          `Review ${isEditing ? "update" : "creation"} failed:`,
-          Object.keys(result).length
-            ? result
-            : { status: response.status, statusText: response.statusText },
-        );
-        return;
+      let response;
+      if (isEditing) 
+        response = await updateReview(targetBookingId, data.rating, data.reviewText, session?.user?.backendToken || '')
+      else
+        response = await addReview(targetBookingId, data.rating, data.reviewText, session?.user?.backendToken || '')
+      
+      if (!response.success) {
+        console.error(`Review ${isEditing ? "update" : "creation"} failed: ${response.message}`,);
+        return; // TODO: notify the user too ok?
       }
+      
+      console.log(response.data)
 
       if (isEditing) {
-        const updatedAdminModified =
-          typeof result?.data?.adminModified === "boolean"
-            ? result.data.adminModified
-            : false;
-
         setReviews((prev) =>
           prev.map((r) =>
-            r._id === selectedReview._id
-              ? {
-                  ...r,
-                  rating: data.rating,
-                  comment: data.reviewText,
-                  adminModified: updatedAdminModified,
-                }
-              : r,
+            r._id === selectedReview._id ? { ...response.data }
+            : r,
           ),
         );
-      } else if (result.data && session?.user) {
-        const optimisticReview: Review = {
-          ...result.data,
-          createdAt: new Date().toISOString(),
-          user: {
-            _id: (session.user as any)._id || currentUserId || "",
-            name: session.user.name || "Anonymous",
-          },
-        };
-        setReviews((prev) => [optimisticReview, ...prev]);
+      } else {
+        setReviews((prev) => [response.data, ...prev]);
       }
 
       closeReviewModal();
@@ -115,12 +87,14 @@ export default function ReviewList({
   return (
     <>
       {!userHasReview && canCreateReview && (
-        <button
-          onClick={() => openReviewModal(null)}
-          className="rounded-xl px-4 py-2 text-left text-sm border border-[#6750A4] text-[#6750A4] hover:bg-[#6750A4] hover:text-white transition-colors duration-200"
-        >
-          Create New Review
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => openReviewModal(null)}
+            className="rounded-xl px-4 py-2 text-left text-sm border border-[#6750A4] text-[#6750A4] hover:bg-[#6750A4] hover:text-white transition-colors duration-200"
+          >
+            Create New Review
+          </button>
+        </div>
       )}
 
       {reviews.length === 0 ? (
@@ -150,6 +124,7 @@ export default function ReviewList({
         initialReview={selectedReview}
         onSubmit={handleSubmitReview}
         onCancel={closeReviewModal}
+        bookingId={selectedReview?._id || bookings[0]?._id}
       />
     </>
   );

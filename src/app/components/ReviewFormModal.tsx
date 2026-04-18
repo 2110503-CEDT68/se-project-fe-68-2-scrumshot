@@ -15,9 +15,10 @@ interface ReviewFormModalProps {
   initialReview?: Review | null;
   onSubmit?: (data: ReviewData) => void;
   onCancel?: () => void;
+  bookingId?: string;
 }
 
-export default function ReviewFormModal({ isOpen, initialReview, onSubmit, onCancel }: ReviewFormModalProps) {
+export default function ReviewFormModal({ isOpen, initialReview, onSubmit, onCancel, bookingId }: ReviewFormModalProps) {
   const [rating, setRating] = useState<number>(initialReview?.rating ?? 5);
   const [reviewText, setReviewText] = useState<string>(initialReview?.comment ?? "");
 
@@ -38,14 +39,14 @@ export default function ReviewFormModal({ isOpen, initialReview, onSubmit, onCan
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-2xl rounded-[28px] bg-white p-6 shadow-2xl">
+      <div className="w-full max-w-2xl rounded-md bg-white p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               {initialReview ? 'Edit Review' : 'Create Review'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {initialReview ? 'Update your existing review.' : 'Write a new review for this campground.'}
+              {(initialReview ? `Update your review` : `Write a new review`) + (bookingId ? ` for booking ${bookingId}` : "")}
             </p>
           </div>
           <button
