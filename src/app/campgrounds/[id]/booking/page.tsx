@@ -72,6 +72,84 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
             alert("An error occurred. Please try again.");
         }
     };
+    
+    // const handleSubmitReview = async (data: {
+    //   rating: number;
+    //   reviewText: string;
+    // }) => {
+    //   const isEditing = !!selectedReview;
+    //   const targetBookingId = isEditing ? selectedReview?._id : bookings[0]?._id;
+  
+    //   if (!targetBookingId) {
+    //     console.error(
+    //       "Missing bookingId. Review cannot be created or edited without a booking.",
+    //     );
+    //     return;
+    //   }
+  
+    //   try {
+    //     let response;
+    //     if (isEditing)
+    //       response = await updateReview(
+    //         targetBookingId,
+    //         data.rating,
+    //         data.reviewText,
+    //         session?.user?.backendToken || "",
+    //       );
+    //     else
+    //       response = await addReview(
+    //         targetBookingId,
+    //         data.rating,
+    //         data.reviewText,
+    //         session?.user?.backendToken || "",
+    //       );
+  
+    //     if (!response.success) {
+    //       console.error(
+    //         `Review ${isEditing ? "update" : "creation"} failed: ${response.message}`,
+    //       );
+    //       return; // TODO: notify the user too ok?
+    //     }
+  
+    //     console.log(response.data);
+  
+    //     if (isEditing) {
+    //       setReviews((prev) =>
+    //         prev.map((r) =>
+    //           r._id === selectedReview?._id ? { ...r, ...response.data } : r,
+    //         ),
+    //       );
+    //     } else {
+    //       setReviews((prev) => [response.data, ...prev]);
+    //     }
+  
+    //     closeReviewModal();
+    //   } catch (error) {
+    //     console.error("Review submit error:", error);
+    //   }
+    // };
+  
+    // const handleDeleteConfirm = async () => {
+    //   if (!selectedReview) return;
+  
+    //   try {
+    //     const response = await deleteReview(
+    //       selectedReview._id,
+    //       session?.user?.backendToken || "",
+    //     );
+  
+    //     if (!response.success) {
+    //       console.error(`Review deletion failed: ${response.message}`);
+    //       return;
+    //     }
+  
+    //     setReviews((prev) => prev.filter((r) => r._id !== selectedReview._id));
+    //     closeDeleteModal();
+    //   } catch (error) {
+    //     console.error("Review delete error:", error);
+    //   }
+    // };
+  
 
     if (!campground) return <div className="text-center pt-20">Loading...</div>;
 

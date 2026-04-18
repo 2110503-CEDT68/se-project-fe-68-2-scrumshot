@@ -3,12 +3,9 @@ import Link from 'next/link';
 import { getCampground } from '@/libs/campgrounds';
 import { getCampgroundReviews } from '@/libs/reviews';
 import { Rating } from '@mui/material';
-import ReviewCard from '@/app/components/ReviewCard';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import ReviewList from '@/app/components/ReviewList';
-import { getAllBookings } from '@/libs/bookings';
-import { Booking } from '@/libs/types';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,10 +17,6 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
   const reviewResponse = await getCampgroundReviews(id);
   const reviews = reviewResponse.success ? reviewResponse.data : [];
   const reviewCount = reviews.length;
-  
-  const userBookings = await getAllBookings(session?.user.backendToken || '');
-  const sameCampgroundBookings: Booking[] = [];//userBookings.success ? userBookings.data.filter(b => b.campground._id === id && (!b.review || b.review?.)) : [];
-  const hasBooked = sameCampgroundBookings.length > 0;
 
   if (!response.success) {
     return (
@@ -36,8 +29,6 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
       </main>
     );
   }
-
-  
 
   const campground = response.data;
 
@@ -101,7 +92,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           </div>
         </div>
 
-        <ReviewList reviews={reviews} currentUserId={currentUserId} canCreateReview={hasBooked} bookings={sameCampgroundBookings}/>
+        <ReviewList reviews={reviews} currentUserId={currentUserId} />
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 import { fetchWrapper } from "./funcs";
-import { APIResponseMultiple, APIResponseSingle, Review } from "./types";
+import { APIResponseMultiple, APIResponseSingle, Review, ReviewExtended } from "./types";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL;
 
@@ -8,21 +8,22 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_UR
 // --- GETTERS ---
 
 export async function getCampgroundReviews(campgroundId: string) {
-  return fetchWrapper<APIResponseMultiple<Review>>(
+  return fetchWrapper<APIResponseMultiple<ReviewExtended>>(
     `${backendUrl}/api/v1/campgrounds/${campgroundId}/reviews`,
     { method: "GET" }
   );
 }
 
+
 export async function getReview(id: string) {
-  return fetchWrapper<APIResponseSingle<Review>>(
+  return fetchWrapper<APIResponseSingle<ReviewExtended>>(
     `${backendUrl}/api/v1/reviews/${id}`,
     { method: "GET" }
   );
 }
 
 export async function getBookingReview(bookingId: string, token: string) {
-  return fetchWrapper<APIResponseSingle<Review>>(
+  return fetchWrapper<APIResponseSingle<ReviewExtended>>(
     `${backendUrl}/api/v1/bookings/${bookingId}/review`, {
       method: "GET",
       headers: {
@@ -35,7 +36,7 @@ export async function getBookingReview(bookingId: string, token: string) {
 // --- MUTATIONS ---
 
 export async function addReview(bookingId: string, rating: number, comment: string, token: string) {
-  return fetchWrapper<APIResponseSingle<Review>>(
+  return fetchWrapper<APIResponseSingle<ReviewExtended>>(
     `${backendUrl}/api/v1/bookings/${bookingId}/review`, {
       method: "POST",
       headers: {
@@ -51,7 +52,7 @@ export async function addReview(bookingId: string, rating: number, comment: stri
 }
 
 export async function updateReview(bookingId: string, rating: number, comment: string, token: string) {
-  return fetchWrapper<APIResponseSingle<Review>>(
+  return fetchWrapper<APIResponseSingle<ReviewExtended>>(
     `${backendUrl}/api/v1/bookings/${bookingId}/review`, {
       method: "PUT",
       headers: {

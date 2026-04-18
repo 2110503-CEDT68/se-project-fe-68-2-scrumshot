@@ -1,23 +1,19 @@
 "use client";
 
-import { Review } from "@/libs/types";
+import { Review, ReviewExtended } from "@/libs/types";
 import { useState } from "react";
 import Rating from "@mui/material/Rating";
+import Link from "next/link";
 
 export default function ReviewCard({
   review,
   isUserReview,
   isAdmin,
-  onEdit,
-  onDelete,
 }: {
-  review: Review;
+  review: ReviewExtended;
   isUserReview: boolean;
   isAdmin: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
 }) {
-  const [showMenu, setShowMenu] = useState(false);
   const canManageReview = isAdmin || isUserReview;
   //don't ask me why this is here, I think this is a edit button?
 
@@ -64,39 +60,14 @@ export default function ReviewCard({
           />
           {canManageReview && (
             <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
+              <Link
+                href={`/bookings/${displayReview._id}`}
                 className="text-gray-400 hover:text-gray-600 text-xl p-1"
                 aria-label="Open review actions"
               >
                 ⋯
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 top-full mt-2 w-32 border border-gray-200 bg-white shadow-lg z-10">
-                  {
-                    review?.adminModified ? null : (
-                    <button
-                      onClick={() => {
-                        onEdit?.();
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      Edit
-                    </button>
-                    )
-                  }
-                  <button
-                    onClick={() => {
-                      onDelete?.();
-                      setShowMenu(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+              </Link>
+              
             </div>
           )}
         </div>

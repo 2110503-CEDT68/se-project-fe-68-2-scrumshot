@@ -43,11 +43,15 @@ export interface Review {
   rating: number;
   comment?: string;
   adminModified: boolean; 
+  isHidden: boolean;
+  createdAt: string;
+}
+
+export interface ReviewExtended extends Review {
   user: { // Only comes with this much apparently
     _id: string;
     name: string;
   }
-  createdAt: string;
   campground: {
     _id: string;
     name: string;

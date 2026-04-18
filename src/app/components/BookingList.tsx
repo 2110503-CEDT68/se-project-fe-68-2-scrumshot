@@ -53,16 +53,13 @@ export default function BookingList() {
         }
     };
 
-    const campgroundMap = campgrounds.reduce((map, c) => {
-        map[c._id] = c.name;
-        return map;
-    }, {} as Record<string, string>);
+    // const campgroundMap = campgrounds.reduce((map, c) => {
+    //     map[c._id] = c.name;
+    //     return map;
+    // }, {} as Record<string, string>);
 
     const getCampgroundName = (item: Booking) => {
-        if (typeof item.campground === 'object' && item.campground !== null) {
-            return (item.campground as any).name || "Unknown Venue";
-        }
-        return campgroundMap[item.campground] || "Unknown Venue (" + item.campground.slice(-4) + ")";
+        return item.campground.name || "Unknown Venue";
     };
 
     if (loading) return <div className="text-center p-10 text-black">Loading bookings...</div>;
