@@ -6,7 +6,7 @@ export interface Booking {
   bookEndDate: string;
   user: string;
   review?: Review;
-  campground: string | Campground;
+  campground: Campground;
   totalPrice: number;
   createdAt: string;
 }
@@ -48,15 +48,6 @@ export interface Review {
     _id: string;
     name: string;
   }
-  createdAt: string;
-}
-
-export interface Review {
-  _id: string;
-  rating: number;
-  comment: string;
-  user: string | User;
-  booking: string | Booking;
   createdAt: string;
 }
 

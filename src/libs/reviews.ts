@@ -27,7 +27,19 @@ export async function getReview(id: string) {
   );
 }
 
+export async function getBookingReview(bookingId: string, token: string) {
+  return fetchWrapper<APIResponseSingle<Review>>(
+    `${backendUrl}/api/v1/bookings/${bookingId}/review`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  );
+}
+
 // --- MUTATIONS ---
+
 
 export async function postReview(bookingId: string, rating: number, comment: string, token: string) {
   return fetchWrapper<APIResponseSingle<Review>>(
