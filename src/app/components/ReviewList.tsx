@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Review } from '@/libs/types';
 import ReviewCard from './ReviewCard';
 import ReviewFormModal from './ReviewFormModal';
-
 
 interface ReviewListProps {
   reviews: Review[];
@@ -14,6 +14,7 @@ interface ReviewListProps {
 }
 
 export default function ReviewList({ reviews, currentUserId, canCreateReview, bookingId }: ReviewListProps) {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
@@ -29,9 +30,33 @@ export default function ReviewList({ reviews, currentUserId, canCreateReview, bo
     setIsModalOpen(false);
   };
 
-  const handleSubmitReview = (data: { rating: number; reviewText: string }) => {
-    console.log('Submitting review:', data, 'for booking ID:', bookingId);
-    closeReviewModal();
+  const handleSubmitReview = async (data: { rating: number; reviewText: string }) => {
+    if (!bookingId) {
+      console.error('Missing bookingId. Review cannot be created without a booking.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingId, rating: data.rating, comment: data.reviewText }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        console.error('Review creation failed:', result);
+        return;
+      }
+
+      closeReviewModal();
+      router.refresh();
+    } catch (error) {
+      console.error('Review creation error:', error);
+    }
   };
 
   return (
@@ -39,7 +64,7 @@ export default function ReviewList({ reviews, currentUserId, canCreateReview, bo
       {!userHasReview && canCreateReview && (
         <button
           onClick={() => openReviewModal(null)}
-          className="rounded-xl px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 border border-[#6750A4] text-[#6750A4] hover:bg-[#6750A4] hover:text-blue-900 transition-colors duration-200" 
+          className="rounded-xl px-4 py-2 text-left text-sm border border-[#6750A4] text-[#6750A4] hover:bg-[#6750A4] hover:text-white transition-colors duration-200"
         >
           Create New Review
         </button>
