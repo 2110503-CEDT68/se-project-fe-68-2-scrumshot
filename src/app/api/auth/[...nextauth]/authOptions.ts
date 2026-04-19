@@ -33,6 +33,10 @@ export const authOptions: AuthOptions = {
       }
     })
   ],
+  pages: {
+    signIn: '/signin',
+    error: '/signin'
+  },
   session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
