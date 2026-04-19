@@ -82,8 +82,8 @@ export default function BookingPage({
   if (!campground) return <div className="text-center pt-20">Loading...</div>;
 
   return (
-    <main className="w-full flex-col items-center pt-20 font-sans text-black">
-      <div className="w-[750px] bg-white p-10 rounded-sm shadow-sm border border-gray-100">
+    <main className="w-full flex flex-col items-center pt-20 font-sans text-black">
+      <div className="w-full max-w-[750px] bg-white p-10 rounded-sm shadow-sm border border-gray-100">
         <h1 className="text-3xl font-bold text-center mb-12">
           Booking For: {campground.name}
         </h1>

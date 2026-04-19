@@ -30,6 +30,16 @@ export default function ReviewForm({ disabled, rating, onRatingChange, comment, 
     }
     setIsEditing(!isEditing);
   };
+
+  const handleOnSubmit = async () => {
+    await onSubmit();
+    setIsEditing(false);
+  };
+
+  const handleOnDelete = async () => {
+    await onDelete();
+    setIsEditing(false);
+   };
   
   return (
     <div className="w-full max-w-2xl rounded-md">
@@ -65,11 +75,11 @@ export default function ReviewForm({ disabled, rating, onRatingChange, comment, 
               {
                 alreadyHasReview ? 
                 <>
-                  <Button variant="contained" color="error" onClick={onDelete}>Delete</Button>
-                  <Button variant="contained" color="success" onClick={onSubmit}>Update</Button>
+                  <Button variant="contained" color="error" onClick={handleOnDelete}>Delete</Button>
+                  <Button variant="contained" color="success" onClick={handleOnSubmit}>Update</Button>
                 </>
                 :
-                <Button variant="contained" color="success" onClick={onSubmit}>Create</Button>
+                <Button variant="contained" color="success" onClick={handleOnSubmit}>Create</Button>
               }
           </div>
           :
