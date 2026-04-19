@@ -445,7 +445,7 @@ export default function BookingDetailPage({
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteReview}
-        isFinalDeletion={isAdmin}
+        isFinalDeletion={adminModified}
       />
     </main>
   );
