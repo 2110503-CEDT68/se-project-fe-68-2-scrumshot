@@ -44,13 +44,21 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
           className="object-cover"
         />
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-4">
         <span className="text-xl font-bold text-black">
           Rating :
         </span>
         <Rating
-          defaultValue={campground.avgRating || 0} precision={0.5} readOnly
+          value={campground.avgRating || 0}
+          precision={0.5} 
+          readOnly 
         />
+        <span className="text-xl font-bold text-gray-800">
+          {campground.avgRating ? campground.avgRating.toFixed(1) : "0.0"}
+        </span>
+        <span className="text-sm text-gray-500 font-medium">
+          ({campground.totalReviews || 0} reviews)
+        </span>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 mb-8">
