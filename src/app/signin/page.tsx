@@ -80,7 +80,7 @@ function SigninForm() {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {loading ? "Signing Up..." : "Sign Up"}
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
           {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
         </div>

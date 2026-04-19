@@ -22,6 +22,7 @@ import { getAllCampgrounds } from "@/libs/campgrounds";
 import { Booking, Campground } from "@/libs/types";
 import ReviewForm from "@/app/components/ReviewForm";
 import { addReview, deleteReview, updateReview } from "@/libs/reviews";
+import DeleteModal from "@/app/components/DeleteModal";
 
 export default function BookingDetailPage({
   params,
@@ -45,17 +46,19 @@ export default function BookingDetailPage({
   const [bookEndDate, setBookEndDate] = useState<Dayjs | null>(null);
   const [manualTotalCost, setManualTotalCost] = useState("");
   const [campgrounds, setCampgrounds] = useState<Campground[]>([]);
-  
+
   // Review state //
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [originalRating, setOriginalRating] = useState<number | null>(null);
   const [originalComment, setOriginalComment] = useState<string | null>(null);
   const [adminModified, setAdminModified] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   // Review state //
   
-  const alreadyHasReview = () => !!originalBooking?.review && !originalBooking.review.isHidden;
-
+  const alreadyHasReview = () =>
+    !!originalBooking?.review && !originalBooking.review.isHidden;
+  
   const fetchData = useCallback(async () => {
     if (!session?.user?.backendToken) return;
     try {
@@ -76,7 +79,7 @@ export default function BookingDetailPage({
           setBookDate(dayjs(data.bookDate));
           setBookEndDate(dayjs(data.bookEndDate));
           setManualTotalCost(data.totalPrice?.toString() || "0");
-          
+
           if (!data.review || data.review.isHidden) {
             setRating(0);
             setComment("");
@@ -86,7 +89,7 @@ export default function BookingDetailPage({
             setOriginalRating(data.review.rating);
             setOriginalComment(data.review.comment || null);
           }
-          
+
           setAdminModified(data.review?.adminModified || false);
         }
       }
@@ -187,24 +190,26 @@ export default function BookingDetailPage({
       setIsUpdating(false);
     }
   };
-  
+
   const handleSubmitReview = async () => {
-    
     const response = await (alreadyHasReview() ? updateReview : addReview)(
       bookingId,
       rating,
       comment,
       session?.user?.backendToken || "",
-    )
-    
+    );
+
     if (!response.success) {
       alert(response.message);
-      return; 
+      return;
     }
 
-    window.location.reload();
+    //window.location.reload();
+    await fetchData();
+    router.refresh();
   };
-  
+
+
   const handleDeleteReview = async () => {
     const response = await deleteReview(
       bookingId,
@@ -213,11 +218,14 @@ export default function BookingDetailPage({
 
     if (!response.success) {
       alert(response.message);
-      return; 
+      return;
     }
 
-    window.location.reload();
-  }
+    //window.location.reload();
+    setShowDeleteModal(false);
+    await fetchData();
+    router.refresh();
+  };
 
   if (loading)
     return (
@@ -228,7 +236,9 @@ export default function BookingDetailPage({
 
   return (
     <main className="w-full flex justify-center pt-10 font-sans text-black min-h-screen bg-gray-50 pb-20">
-      <div className={`w-[850px] bg-white p-10 rounded-2xl shadow-xl border ${isEditMode ? "border-blue-400" : "border-gray-100"} relative`} >
+      <div
+        className={`w-[850px] bg-white p-10 rounded-2xl shadow-xl border ${isEditMode ? "border-blue-400" : "border-gray-100"} relative`}
+      >
         {isUpdating && (
           <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 rounded-2xl">
             <CircularProgress color="secondary" />
@@ -407,28 +417,36 @@ export default function BookingDetailPage({
             </>
           )}
         </div>
-        
+
         <div className="w-full flex flex-col items-center mt-5">
           {
             <ReviewForm
-                disabled={adminModified && !isAdmin}
-                originalRating={originalRating}
-                rating={rating}
-                onRatingChange={setRating}
-                comment={comment}
-                originalComment={originalComment}
-                alreadyHasReview={alreadyHasReview()}
-                onCommentChange={setComment}
-                onSubmit={handleSubmitReview}
-                onDelete={handleDeleteReview}
+              disabled={adminModified && !isAdmin}
+              originalRating={originalRating}
+              rating={rating}
+              onRatingChange={setRating}
+              comment={comment}
+              originalComment={originalComment}
+              alreadyHasReview={alreadyHasReview()}
+              onCommentChange={setComment}
+              onSubmit={handleSubmitReview}
+              onDelete={() => setShowDeleteModal(true)}
             />
           }
-          {
-            adminModified && 
-            <p className="text-red-500 italic underline mt-5">This review has been modified by an admin.</p>
-          }
+          {adminModified && (
+            <p className="text-red-500 italic underline mt-5">
+              This review has been modified by an admin.
+            </p>
+          )}
         </div>
       </div>
+
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteReview}
+        isFinalDeletion={adminModified}
+      />
     </main>
   );
 }

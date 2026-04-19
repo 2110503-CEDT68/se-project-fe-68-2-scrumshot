@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
-import { Review } from '@/libs/types';
+import { Review } from "@/libs/types";
 import StarRating from "./StarRating";
 import ActionButtons from "./ActionButtons";
 import { Button } from "@mui/material";
@@ -19,8 +19,18 @@ interface ReviewFormProps {
   onDelete: () => void;
 }
 
-export default function ReviewForm({ disabled, rating, onRatingChange, comment, onCommentChange, alreadyHasReview, onSubmit, onDelete, originalRating, originalComment }: ReviewFormProps) {
-  
+export default function ReviewForm({
+  disabled,
+  rating,
+  onRatingChange,
+  comment,
+  onCommentChange,
+  alreadyHasReview,
+  onSubmit,
+  onDelete,
+  originalRating,
+  originalComment,
+}: ReviewFormProps) {
   const [isEditing, setIsEditing] = useState(false);
   
   const toggleEdit = () => {
@@ -30,6 +40,16 @@ export default function ReviewForm({ disabled, rating, onRatingChange, comment, 
     }
     setIsEditing(!isEditing);
   };
+
+  const handleOnSubmit = async () => {
+    await onSubmit();
+    setIsEditing(false);
+  };
+
+  const handleOnDelete = async () => {
+    await onDelete();
+    setIsEditing(false);
+   };
   
   return (
     <div className="w-full max-w-2xl rounded-md">
@@ -44,38 +64,69 @@ export default function ReviewForm({ disabled, rating, onRatingChange, comment, 
       <div className="mb-4">
         <header className="flex items-center gap-2 mb-3">
           <label className="text-sm font-medium text-gray-700">Rating:</label>
-          <StarRating rating={rating} onRatingChange={onRatingChange} disabled={!isEditing || disabled} />
+          <StarRating
+            rating={rating}
+            onRatingChange={onRatingChange}
+            disabled={!isEditing || disabled}
+          />
         </header>
         <textarea
           placeholder="Type your review..."
           className="w-full min-h-35 rounded-2xl border border-gray-300 bg-white p-4 text-sm text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           value={comment}
           disabled={!isEditing || disabled}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onCommentChange(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            onCommentChange(e.target.value)
+          }
           aria-label="Review text"
         />
       </div>
 
-      {
-        disabled ? null :
-        (
-          isEditing ? 
-          <div className="flex gap-2">
-            <Button variant="contained" color="secondary" onClick={toggleEdit}>Cancel</Button>
-              {
-                alreadyHasReview ? 
-                <>
-                  <Button variant="contained" color="error" onClick={onDelete}>Delete</Button>
-                  <Button variant="contained" color="success" onClick={onSubmit}>Update</Button>
-                </>
-                :
-                <Button variant="contained" color="success" onClick={onSubmit}>Create</Button>
-              }
-          </div>
-          :
-          <Button variant="contained" color="primary" onClick={toggleEdit}>Edit</Button>
+      {disabled ? (
+        alreadyHasReview ? (
+          <Button variant="contained" color="error" onClick={handleOnDelete}>
+            Delete
+          </Button>
+        ) : (
+          <p className="text-gray-500 italic text-center">You have been deleted</p>
         )
-      }
+      ) : isEditing ? (
+          <div className="flex gap-2">
+          <Button variant="contained" color="secondary" onClick={toggleEdit}>
+            Cancel
+          </Button>
+          {alreadyHasReview ? (
+                <>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleOnDelete}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleOnSubmit}
+              >
+                Update
+              </Button>
+                </>
+          ) : (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleOnSubmit}
+            >
+              Create
+            </Button>
+          )}
+          </div>
+      ) : (
+        <Button variant="contained" color="primary" onClick={toggleEdit}>
+          Edit
+        </Button>
+      )}
     </div>
   );
 }
