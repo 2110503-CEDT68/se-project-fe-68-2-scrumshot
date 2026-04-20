@@ -88,7 +88,7 @@ export default function ReviewForm({
             Delete
           </Button>
         ) : (
-          <p className="text-gray-500 italic text-center">You have been deleted</p>
+          <p className="text-gray-500 italic text-center">This review has been deleted permanently</p>
         )
       ) : isEditing ? (
           <div className="flex gap-2">
