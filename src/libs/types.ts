@@ -1,4 +1,4 @@
-export type Role = 'user' | 'admin';
+export type Role = "user" | "admin";
 
 export interface Booking {
   _id: string;
@@ -27,7 +27,7 @@ export interface Campground {
   description: string;
   address: string;
   district: string;
-  province: string
+  province: string;
   postalcode: string;
   tel: string;
   region: string;
@@ -38,24 +38,37 @@ export interface Campground {
   totalReviews: number;
 }
 
+export interface CampgroundQueryParams {
+  name?: string; // ค้นหาชื่อ campground
+  region?: string; // ภูมิภาค เช่น north, south
+  minPrice?: number; // ราคาขั้นต่ำ
+  maxPrice?: number; // ราคาสูงสุด
+  minRating?: number; // rating ขั้นต่ำ
+  sortBy?: "name" | "pricePerNight" | "avgRating" | "createdAt"; // เรียงตามอะไร
+  sortOrder?: "asc" | "desc"; // เรียงน้อย→มาก หรือ มาก→น้อย
+  limit?: number; // จำนวนต่อหน้า
+  page?: number; // หน้าที่ต้องการ
+}
+
 export interface Review {
   _id: string;
   rating: number;
   comment?: string;
-  adminModified: boolean; 
+  adminModified: boolean;
   isHidden: boolean;
   createdAt: string;
 }
 
 export interface ReviewExtended extends Review {
-  user: { // Only comes with this much apparently
+  user: {
+    // Only comes with this much apparently
     _id: string;
     name: string;
-  }
+  };
   campground: {
     _id: string;
     name: string;
-  }
+  };
 }
 
 export interface APIResponseSingle<T> {
@@ -74,7 +87,7 @@ export interface APIResponseMessage {
   message: string;
 }
 
-export interface APIResponseToken { 
+export interface APIResponseToken {
   success: true;
   token: string;
   data: User;
