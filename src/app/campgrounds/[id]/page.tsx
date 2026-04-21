@@ -6,6 +6,7 @@ import { Rating } from '@mui/material';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import ReviewList from '@/app/components/ReviewList';
+import DeleteCampgroundButton from '@/app/components/DeleteCampgroundButton';
 
 export default async function CampgroundDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -78,13 +79,15 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="flex justify-start mb-10">
+      <div className="flex justify-start items-center mb-10">
         <Link href={`/campgrounds/${campground._id}/booking`}>
           <button className="bg-[#6750A4] hover:bg-[#524082] text-white text-sm py-3 px-8 rounded-md shadow-lg transition-colors flex items-center gap-2">
             Book for {campground.pricePerNight} Baht / Night
             <span>✏️</span>
           </button>
         </Link>
+
+        <DeleteCampgroundButton campgroundId={campground._id} />
       </div>
 
       <div className="space-y-6">
