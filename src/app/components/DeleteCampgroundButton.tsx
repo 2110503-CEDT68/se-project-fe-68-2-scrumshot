@@ -41,19 +41,14 @@ export default function DeleteCampgroundButton({
 
   return (
     <>
-      {/* <Button
+      <Button
         variant="contained"
         color="error"
         onClick={() => setIsModalOpen(true)}
         sx={{ ml: 2 }}
       >
         Delete Campground
-      </Button> */}
-
-      {/* make the style same as booking button*/}
-      <button onClick={() => setIsModalOpen(true)} className="mx-4 bg-[#E60000] hover:bg-[#CC0000] text-white text-sm py-3 px-8 rounded-md shadow-lg transition-colors flex items-center gap-2">
-        Delete Campground
-      </button>
+      </Button>
 
       {error && (
         <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
