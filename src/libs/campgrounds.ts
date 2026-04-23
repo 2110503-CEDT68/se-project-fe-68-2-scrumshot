@@ -15,3 +15,17 @@ export async function getCampground(id: string) {
     `${backendUrl}/api/v1/campgrounds/${id}`
   );
 }
+
+export async function createCampground(campgroundData: Partial<Campground>, token?: string) {
+  return fetchWrapper<APIResponseSingle<Campground>>(
+    `${backendUrl}/api/v1/campgrounds`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: JSON.stringify(campgroundData),
+    }
+  );
+}

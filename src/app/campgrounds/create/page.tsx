@@ -3,7 +3,7 @@ import { Input, Button, CircularProgress, Backdrop, Select, MenuItem, FormContro
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-{/*import createCampground from '@/libs/createCampground';*/}
+{/*import { createCampground } from '@/libs/campgrounds';*/}
 
 export default function CreateCampgroundPage() {
   const { data: session } = useSession();
@@ -26,7 +26,7 @@ export default function CreateCampgroundPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const regions = ['Central', 'North', 'Northeast', 'Eastern', 'Western', 'Southern'];
+  const regions = ['Central', 'North', 'Northeast', 'Eastern', 'Western', 'South'];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -49,7 +49,11 @@ export default function CreateCampgroundPage() {
     if (!formData.postalcode.trim()) return [false, 'Postal Code is required'];
     if (formData.postalcode.length > 5) return [false, 'Postal Code cannot exceed 5 digits'];
     if (!formData.tel.trim()) return [false, 'Telephone Number is required'];
+    if (isNaN(Number(formData.tel)) || formData.tel.length > 15) return [false, 'Telephone Number must be valid'];
     if (!formData.pricePerNight) return [false, 'Price Per Night is required'];
+    if (isNaN(Number(formData.pricePerNight)) || Number(formData.pricePerNight) <= 0) {
+      return [false, 'Price Per Night must be valid'];
+    }
     return [true, null];
   };
 
