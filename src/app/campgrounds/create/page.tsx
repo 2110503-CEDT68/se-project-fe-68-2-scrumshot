@@ -59,17 +59,22 @@ export default function CreateCampgroundPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     const [valid, errorMsg] = validate();
     if (!valid) {
       setErrorMessage(errorMsg);
-      setLoading(false);
       return;
     }
 
+    const confirmed = window.confirm('Are you sure you want to publish this campground?');
+    if (!confirmed) {
+      return;
+    }
+
+    setLoading(true);
     try {
       const token = session?.user?.token || (session as any)?.accessToken;
       const submitData = { ...formData, pricePerNight: Number(formData.pricePerNight) };
+      {/*createCampground is here*/}
       const result = await createCampground(submitData, token);
       if (!result.success) {
         setErrorMessage(result.message);
@@ -83,7 +88,6 @@ export default function CreateCampgroundPage() {
     }
   };
 
-  // Reusable style for the input containers
   const inputStyle = {
     border: '1px solid #ccc',
     borderRadius: '6px',
