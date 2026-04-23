@@ -1,8 +1,9 @@
 'use client';
-import { Input, Button, CircularProgress, Backdrop, Select, MenuItem, FormControl, InputLabel, TextareaAutosize } from '@mui/material';
+import { Input, Button, CircularProgress, Backdrop, Select, MenuItem, FormControl, TextareaAutosize } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+{/*import createCampground from '@/libs/createCampground';*/}
 
 export default function CreateCampgroundPage() {
   const { data: session } = useSession();
@@ -29,22 +30,12 @@ export default function CreateCampgroundPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Update image preview when picture URL changes
-    if (name === 'picture' && value) {
-      setImagePreview(value);
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'picture' && value) setImagePreview(value);
   };
 
   const handleRegionChange = (e: any) => {
-    setFormData(prev => ({
-      ...prev,
-      region: e.target.value
-    }));
+    setFormData(prev => ({ ...prev, region: e.target.value }));
   };
 
   const validate = (): [boolean, string | null] => {
@@ -59,363 +50,134 @@ export default function CreateCampgroundPage() {
     if (formData.postalcode.length > 5) return [false, 'Postal Code cannot exceed 5 digits'];
     if (!formData.tel.trim()) return [false, 'Telephone Number is required'];
     if (!formData.pricePerNight) return [false, 'Price Per Night is required'];
-    if (Number(formData.pricePerNight) <= 0) return [false, 'Price must be greater than 0'];
-
     return [true, null];
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null);
+    const [valid, errorMsg] = validate();
+    if (!valid) {
+      setErrorMessage(errorMsg);
+      setLoading(false);
+      return;
+    }
 
     try {
-      const [valid, errorMsg] = validate();
-      if (!valid) {
-        setErrorMessage(errorMsg);
-        return;
-      }
-
       const token = session?.user?.token || (session as any)?.accessToken;
-      if (!token) {
-        setErrorMessage('Authentication required');
-        return;
-      }
-
-      const submitData = {
-        picture: formData.picture,
-        name: formData.name,
-        description: formData.description,
-        province: formData.province,
-        district: formData.district,
-        region: formData.region,
-        postalcode: formData.postalcode,
-        tel: formData.tel,
-        pricePerNight: Number(formData.pricePerNight),
-        address: formData.address,
-      };
-
-      {/* Please Speed I need this */}
+      const submitData = { ...formData, pricePerNight: Number(formData.pricePerNight) };
       const result = await createCampground(submitData, token);
-
       if (!result.success) {
-        setErrorMessage(result.message || 'Failed to create campground');
-        return;
+        setErrorMessage(result.message);
+      } else {
+        router.push('/campgrounds');
       }
-
-      router.push('/campgrounds');
     } catch (error) {
-      setErrorMessage('An error occurred while creating the campground');
-      console.error(error);
+      setErrorMessage('An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
+  // Reusable style for the input containers
+  const inputStyle = {
+    border: '1px solid #ccc',
+    borderRadius: '6px',
+    padding: '4px 12px',
+    '& input': { padding: '8px 0', fontSize: '14px' }
+  };
+
   return (
-    <main className="w-full m-8 flex flex-col gap-8 justify-center">
-      <Backdrop
-        sx={{
-          color: '#fff',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2
-        }}
-        open={loading}
-      >
-        <CircularProgress color="inherit" size={60} />
-        <p className="text-xl font-semibold tracking-wider animate-pulse">
-          Creating campground...
-        </p>
+    <main className="w-full p-10 flex flex-col items-center">
+      <Backdrop sx={{ color: '#fff', zIndex: 1000, flexDirection: 'column', gap: 2 }} open={loading}>
+        <CircularProgress color="inherit" />
+        <p>Creating campground...</p>
       </Backdrop>
 
-      <h1 className="text-4xl font-bold text-center">Create Campground</h1>
+      <h1 className="text-4xl font-bold mb-8">Create Campground</h1>
 
-      <form className="w-full flex flex-col max-w-2xl m-auto gap-4" onSubmit={handleSubmit}>
-
-        <div className="w-full">
-          <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center mb-4 overflow-hidden">
-            {imagePreview ? (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-full h-full object-cover"
-                onError={() => {
-                  setImagePreview('');
-                }}
-              />
-            ) : (
-              <p className="text-gray-400 text-lg">PREVIEW IMAGE</p>
-            )}
-          </div>
+      <form className="w-full max-w-3xl flex flex-col gap-5" onSubmit={handleSubmit}>
+        
+        {/* Preview Section */}
+        <div className="w-full aspect-[16/9] bg-[#e0e0e0] rounded-xl flex items-center justify-center mb-2 overflow-hidden">
+          {imagePreview ? (
+            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" onError={() => setImagePreview('')} />
+          ) : (
+            <p className="text-gray-400 font-bold tracking-widest">PREVIEW IMAGE</p>
+          )}
         </div>
 
-        {/* Fields Grid */}
+        {/* Form Fields */}
         <div className="flex flex-col gap-4">
-          {/* Campground Picture Link */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Campground Picture Link :</label>
-            <Input
-              type="url"
-              name="picture"
-              placeholder="https://example.com/image.jpg"
-              value={formData.picture}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
+          <div className="flex flex-col gap-1">
+            <label className="font-bold text-lg">Campground Picture Link :</label>
+            <Input name="picture" value={formData.picture} onChange={handleInputChange} fullWidth disableUnderline sx={inputStyle} />
           </div>
 
-          {/* Campground Name */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Campground Name :</label>
-            <Input
-              type="text"
-              name="name"
-              placeholder="Enter campground name"
-              value={formData.name}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
+          <div className="flex flex-col gap-1">
+            <label className="font-bold text-lg">Campground Name :</label>
+            <Input name="name" value={formData.name} onChange={handleInputChange} fullWidth disableUnderline sx={inputStyle} />
           </div>
 
-          {/* Description */}
-          <div className="flex gap-4">
-            <label className="w-59 text-lg font-semibold pt-3">Description :</label>
+          <div className="flex flex-col gap-1">
+            <label className="font-bold text-lg">Description :</label>
             <TextareaAutosize
               name="description"
-              placeholder="Enter campground description"
+              minRows={8}
               value={formData.description}
               onChange={handleInputChange}
-              minRows={5}
-              style={{
-                flex: 1,
-                padding: '12px',
-                fontSize: '14px',
-                fontFamily: 'Roboto, sans-serif',
-                border: '1px solid #999',
-                borderRadius: '8px',
-                boxSizing: 'border-box'
-              }}
+              className="w-full p-3 border border-gray-300 rounded-md text-sm focus:outline-none"
             />
           </div>
 
-          {/* Address */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Address :</label>
-            <Input
-              type="text"
-              name="address"
-              placeholder="Enter address"
-              value={formData.address}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
-          </div>
+          {/* Address Data Grid */}
+          <div className="grid grid-cols-[180px_1fr] items-center gap-y-4">
+            <label className="font-bold text-lg">Address :</label>
+            <Input name="address" value={formData.address} onChange={handleInputChange} disableUnderline sx={inputStyle} />
 
-          {/* Province */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Province :</label>
-            <Input
-              type="text"
-              name="province"
-              placeholder="Enter province"
-              value={formData.province}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
-          </div>
+            <label className="font-bold text-lg">Province :</label>
+            <Input name="province" value={formData.province} onChange={handleInputChange} disableUnderline sx={inputStyle} />
 
-          {/* District */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">District :</label>
-            <Input
-              type="text"
-              name="district"
-              placeholder="Enter district"
-              value={formData.district}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
-          </div>
+            <label className="font-bold text-lg">District :</label>
+            <Input name="district" value={formData.district} onChange={handleInputChange} disableUnderline sx={inputStyle} />
 
-          {/* Region */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Region :</label>
-            <FormControl fullWidth>
-              <Select
-                name="region"
-                value={formData.region}
-                onChange={handleRegionChange}
-              >
-                <MenuItem value="">
-                  <em>Select a region</em>
-                </MenuItem>
-                {regions.map((region) => (
-                  <MenuItem key={region} value={region}>
-                    {region}
-                  </MenuItem>
-                ))}
+            <label className="font-bold text-lg">Region :</label>
+            <FormControl fullWidth size="small">
+              <Select name="region" value={formData.region} onChange={handleRegionChange} sx={{ borderRadius: '6px' }}>
+                {regions.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
               </Select>
             </FormControl>
-          </div>
 
-          {/* Postal Code */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Postal Code :</label>
-            <Input
-              type="text"
-              name="postalcode"
-              placeholder="Enter postal code"
-              value={formData.postalcode}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
-          </div>
+            <label className="font-bold text-lg">Postal Code :</label>
+            <Input name="postalcode" value={formData.postalcode} onChange={handleInputChange} disableUnderline sx={inputStyle} />
 
-          {/* Telephone Number */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Telephone Number :</label>
-            <Input
-              type="text"
-              name="tel"
-              placeholder="Enter telephone number"
-              value={formData.tel}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px'
-                }
-              }}
-            />
-          </div>
+            <label className="font-bold text-lg">Telephone Number :</label>
+            <Input name="tel" value={formData.tel} onChange={handleInputChange} disableUnderline sx={inputStyle} />
 
-          {/* Price Per Night */}
-          <div className="flex items-center gap-4">
-            <label className="w-96 text-lg font-semibold">Price Per Night (Baht) :</label>
-            <Input
-              type="text"
-              name="pricePerNight"
-              placeholder="Enter price"
-              value={formData.pricePerNight}
-              onChange={handleInputChange}
-              fullWidth
-              disableUnderline
-              sx={{
-                border: '1px solid #999',
-                borderRadius: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
-                '& input': {
-                  padding: '10px',
-                  fontSize: '14px',
-                  backgroundColor: '#fce4ec'
-                }
-              }}
-            />
+            <label className="font-bold text-lg">Price Per Night (Baht) :</label>
+            <Input name="pricePerNight" value={formData.pricePerNight} onChange={handleInputChange} disableUnderline sx={{ ...inputStyle, backgroundColor: '#fdecec' }} />
           </div>
         </div>
 
-        {/* Error Message */}
-        {errorMessage && (
-          <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {errorMessage}
-          </div>
-        )}
+        {errorMessage && <p className="text-red-500 font-semibold">{errorMessage}</p>}
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          sx={{
-            backgroundColor: '#22c55e',
-            color: 'white',
-            padding: '12px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            textTransform: 'none',
-            borderRadius: '6px',
-            '&:hover': {
-              backgroundColor: '#16a34a'
-            }
-          }}
-        >
-          Finished This Campground
-        </Button>
+        <div className="flex justify-end mt-4">
+            <Button
+            type="submit"
+            variant="contained"
+            sx={{
+                backgroundColor: '#44c754',
+                padding: '10px 30px',
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                '&:hover': { backgroundColor: '#38a646' }
+            }}
+            >
+            Finished This Campground
+            </Button>
+        </div>
       </form>
     </main>
   );
