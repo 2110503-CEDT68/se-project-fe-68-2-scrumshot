@@ -1,20 +1,19 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import DateReserve from "@/app/components/DateReserve";
 import { getCampground } from "@/libs/campgrounds";
 import { createBooking } from "@/libs/bookings";
 import { Campground } from "@/libs/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ReviewForm from "@/app/components/ReviewForm";
 
 export default function BookingPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const { id } = use(params);
   const { data: session } = useSession();
   const router = useRouter();
@@ -47,12 +46,25 @@ export default function BookingPage({
   }, [bookDate, bookEndDate, campground]);
 
   const handleConfirm = async () => {
-    if (!bookDate || !bookEndDate || totalPrice <= 0) {
-      alert("Please select valid Start and End dates (at least 1 night)");
+    if (!bookDate || !bookEndDate) {
+      alert("Please select both start and end dates.");
       return;
     }
 
-    if (!session || !session.user.backendToken) {
+    const today = dayjs().startOf("day");
+    if (bookDate.isBefore(today, "day") || bookEndDate.isBefore(today, "day")) {
+      alert(
+        "The booking date must be today or a future date. You cannot choose a date in the past.",
+      );
+      return;
+    }
+
+    if (!bookDate.isBefore(bookEndDate, "day")) {
+      alert("Start date must be before end date.");
+      return;
+    }
+
+    if (!session?.user?.backendToken) {
       alert("Please sign in to make a booking");
       return;
     }
@@ -77,7 +89,6 @@ export default function BookingPage({
       alert("An error occurred. Please try again.");
     }
   };
-
 
   if (!campground) return <div className="text-center pt-20">Loading...</div>;
 
@@ -125,12 +136,7 @@ export default function BookingPage({
             </button>
             <button
               onClick={handleConfirm}
-              disabled={totalPrice <= 0}
-              className={`px-8 py-3 rounded-md font-semibold text-lg transition-colors ${
-                totalPrice > 0
-                  ? "bg-[#6750A4] text-white hover:bg-[#524082]"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className="px-8 py-3 rounded-md font-semibold text-lg bg-[#6750A4] text-white hover:bg-[#524082] transition-colors"
             >
               Confirm Booking
             </button>

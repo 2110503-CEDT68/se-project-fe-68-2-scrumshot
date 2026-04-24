@@ -81,8 +81,7 @@ export default function CampgroundCard({
             <button
               className="w-full bg-transparent border border-[#FEA809]
             text-[#FEA809] text-sm py-2 px-8 rounded-lg flex items-center justify-center
-            shadow-sm transition-colors hover:bg-[#FEA809] hover:text-white"
-            >
+            shadow-sm transition-colors hover:bg-[#FEA809] hover:text-white">
               Edit
             </button>
           </Link>
