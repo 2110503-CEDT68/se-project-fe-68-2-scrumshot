@@ -72,10 +72,9 @@ export default function CreateCampgroundPage() {
 
     setLoading(true);
     try {
-      const token = session?.user?.token || (session as any)?.accessToken;
       const submitData = { ...formData, pricePerNight: Number(formData.pricePerNight) };
       {/*createCampground is here*/}
-      const result = await createCampground(submitData, token);
+      const result = await createCampground(submitData);
       if (!result.success) {
         setErrorMessage(result.message);
       } else {
