@@ -15,6 +15,7 @@ function StarRating({ rating = 5, onRatingChange, disabled }: StarRatingProps) {
       value={rating}
       precision={1}
       size="small"
+      data-testid="star-rating"
       onChange={(_, value) => {
         if (value !== null) {
           onRatingChange?.(value);
