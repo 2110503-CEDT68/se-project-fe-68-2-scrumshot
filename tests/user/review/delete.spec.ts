@@ -86,7 +86,6 @@ test.describe("Review deletion", () => {
     }
   });
 
-  // Test 1: Do not modify this test (as requested)
   test("should be able to delete review", async ({ page }) => {
     await page.getByText("Review").scrollIntoViewIfNeeded();
 
@@ -106,7 +105,6 @@ test.describe("Review deletion", () => {
     await expect(page.getByText(reviewComment)).not.toBeVisible();
   });
 
-  // Test 2: Verify warning message when deleting a review modified by an admin
   test("should show warning when deleting admin-edited review", async ({ browser }) => {
     if (!currentBooking) throw new Error("Booking missing");
 
