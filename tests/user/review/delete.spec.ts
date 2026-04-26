@@ -18,7 +18,7 @@ test.describe("Review deletion", () => {
     currentCampground = null;
     currentBooking = null;
 
-    // 1. GET CAMPGROUND
+    // Step 1: Retrieve campground list
     const campgroundRes = await request.get(`${backendLink}/campgrounds`);
     const campgroundData: APIResponseMultiple<Campground> =
       await campgroundRes.json();
@@ -29,7 +29,7 @@ test.describe("Review deletion", () => {
 
     currentCampground = campgroundData.data[0];
 
-    // 2. CREATE BOOKING
+    // Step 2: Create a booking
     const bookingRes = await request.post(
       `${backendLink}/campgrounds/${currentCampground._id}/bookings`,
       {
@@ -49,7 +49,7 @@ test.describe("Review deletion", () => {
 
     currentBooking = bookingJson.data;
 
-    // 3. CREATE REVIEW
+    // Step 3: Create a review for the booking
     reviewComment = "DELETE TEST " + Date.now();
 
     const reviewRes = await request.post(
@@ -71,7 +71,7 @@ test.describe("Review deletion", () => {
       throw new Error("Failed to create review");
     }
 
-    // 4. ไปหน้า booking
+    // Step 4: Navigate to the booking detail page
     await page.goto(`/bookings/${currentBooking._id}`);
     await page.waitForLoadState("networkidle");
   });
@@ -86,9 +86,7 @@ test.describe("Review deletion", () => {
     }
   });
 
-  // =====================================================
-  // ✅ TEST 1: ❌ ห้ามแตะ (ตามที่คุณสั่ง)
-  // =====================================================
+  // Test 1: Do not modify this test (as requested)
   test("should be able to delete review", async ({ page }) => {
     await page.getByText("Review").scrollIntoViewIfNeeded();
 
@@ -108,15 +106,11 @@ test.describe("Review deletion", () => {
     await expect(page.getByText(reviewComment)).not.toBeVisible();
   });
 
-  // =====================================================
-  // ✅ TEST 2: FIXED VERSION (เสถียร)
-  // =====================================================
+  // Test 2: Verify warning message when deleting a review modified by an admin
   test("should show warning when deleting admin-edited review", async ({ browser }) => {
     if (!currentBooking) throw new Error("Booking missing");
 
-    // =========================
-    // 1. ADMIN EDIT
-    // =========================
+    // Step 1: Admin modifies the review
     const adminContext = await browser.newContext({
       storageState: "playwright/.auth/admin.json",
     });
@@ -137,10 +131,9 @@ test.describe("Review deletion", () => {
     await textbox.fill("ADMIN EDITED");
 
     const updateBtn = adminPage.getByRole("button", { name: "Update" });
-
     await expect(updateBtn).toBeVisible();
 
-    // 🔥 FIX สำคัญ: click + wait request พร้อมกัน
+    // Ensure the update request is completed before proceeding
     await Promise.all([
       adminPage.waitForResponse(res =>
         res.url().includes(`/bookings/${currentBooking!._id}/review`)
@@ -150,9 +143,7 @@ test.describe("Review deletion", () => {
 
     await adminContext.close();
 
-    // =========================
-    // 2. USER DELETE
-    // =========================
+    // Step 2: User attempts to delete the modified review
     const userContext = await browser.newContext({
       storageState: "playwright/.auth/user.json",
     });
@@ -161,7 +152,7 @@ test.describe("Review deletion", () => {
     await userPage.goto(`/bookings/${currentBooking._id}`);
     await userPage.waitForLoadState("networkidle");
 
-    // 🔥 FIX: รอให้ UI sync จริง
+    // Wait until the updated content is visible
     await expect(
       userPage.getByText("ADMIN EDITED")
     ).toBeVisible();
