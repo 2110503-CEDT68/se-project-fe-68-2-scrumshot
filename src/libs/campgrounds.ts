@@ -30,6 +30,20 @@ export async function createCampground(campground: CampgroundModifiable, token: 
   );
 }
 
+export async function updateCampground(id: string, campground: CampgroundModifiable, token: string) {
+  return fetchWrapper<APIResponseSingle<Campground>>(
+    `${backendUrl}/api/v1/campgrounds/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(campground),
+    }
+  );
+}
+
 
 export function validateCampground(campground: CampgroundModifiable): [keyof CampgroundModifiable, string] | [null, null] {
   // returns the first invalid field and an error message, or [true, null] if valid
