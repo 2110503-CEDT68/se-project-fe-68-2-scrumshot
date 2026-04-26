@@ -173,4 +173,32 @@ test.describe("Review deletion", () => {
 
     await userContext.close();
   });
+
+  test("other user should NOT see action menu on other user's review", async ({ browser }) => {
+  if (!currentCampground) throw new Error("Campground missing");
+
+  const user2Context = await browser.newContext({
+    storageState: "playwright/.auth/user2.json",
+  });
+  const user2Page = await user2Context.newPage();
+
+  await user2Page.goto(`/campgrounds/${currentCampground._id}`);
+  await user2Page.waitForLoadState("networkidle");
+
+  const reviewCard = user2Page.getByTestId("review-card").filter({
+    has: user2Page.getByText(reviewComment),
+  });
+
+  await expect(reviewCard).toBeVisible();
+
+  await expect(
+    reviewCard.getByTestId("review-menu")
+  ).toHaveCount(0);
+
+  await expect(
+    reviewCard.getByRole("button", { name: /edit|delete|\.\.\./i })
+  ).toHaveCount(0);
+
+  await user2Context.close();
+});
 });
