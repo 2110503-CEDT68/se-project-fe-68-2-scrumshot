@@ -39,15 +39,12 @@ export interface Campground {
 }
 
 export interface CampgroundQueryParams {
-  name?: string; // ค้นหาชื่อ campground
-  region?: string; // ภูมิภาค เช่น north, south
-  minPrice?: number; // ราคาขั้นต่ำ
-  maxPrice?: number; // ราคาสูงสุด
-  minRating?: number; // rating ขั้นต่ำ
-  sortBy?: "name" | "pricePerNight" | "avgRating" | "createdAt"; // เรียงตามอะไร
-  sortOrder?: "asc" | "desc"; // เรียงน้อย→มาก หรือ มาก→น้อย
-  limit?: number; // จำนวนต่อหน้า
-  page?: number; // หน้าที่ต้องการ
+  name?: string; 
+  region?: string; 
+  minPrice?: number; 
+  maxPrice?: number; 
+  minRating?: number;
+  maxRating?: number;
 }
 
 export interface Review {

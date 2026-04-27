@@ -27,26 +27,12 @@ function appendQueryParam(
   }
 }
 
-function normalizeQueryParams(
-  params?: CampgroundQueryParams,
-): CampgroundQueryParams {
-  return {
-    ...params,
-    page: params?.page && params.page > 0 ? params.page : 1,
-    limit: params?.limit && params.limit > 0 ? params.limit : 10,
-  };
-}
-
 export async function getAllCampgrounds(queryParams?: CampgroundQueryParams) {
   const url = new URL(`${backendUrl}/api/v1/campgrounds`);
 
-  const normalizedParams = normalizeQueryParams(queryParams);
-
-  if (normalizedParams) {
-    (Object.keys(normalizedParams) as (keyof CampgroundQueryParams)[]).forEach(
-      (key) => {
-        appendQueryParam(url, key, normalizedParams[key]);
-      },
+  if (queryParams) {
+    (Object.keys(queryParams) as (keyof CampgroundQueryParams)[]).forEach(
+      (key) => appendQueryParam(url, key, queryParams[key])
     );
   }
 
