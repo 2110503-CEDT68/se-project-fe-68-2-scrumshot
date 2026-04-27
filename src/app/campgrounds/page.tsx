@@ -11,53 +11,33 @@ export default async function CampgroundsPage({
 }: CampgroundsPageProps) {
   // Build query params from search params
   const queryParams: CampgroundQueryParams = {};
-
-  if (searchParams.name)
-    queryParams.name = Array.isArray(searchParams.name)
-      ? searchParams.name[0]
-      : searchParams.name;
-  if (searchParams.region)
-    queryParams.region = Array.isArray(searchParams.region)
-      ? searchParams.region[0]
-      : searchParams.region;
-  if (searchParams.minPrice)
-    queryParams.minPrice = parseFloat(
-      Array.isArray(searchParams.minPrice)
-        ? searchParams.minPrice[0]
-        : searchParams.minPrice,
-    );
-  if (searchParams.maxPrice)
-    queryParams.maxPrice = parseFloat(
-      Array.isArray(searchParams.maxPrice)
-        ? searchParams.maxPrice[0]
-        : searchParams.maxPrice,
-    );
-  if (searchParams.minRating)
-    queryParams.minRating = parseFloat(
-      Array.isArray(searchParams.minRating)
-        ? searchParams.minRating[0]
-        : searchParams.minRating,
-    );
-  if (searchParams.sortBy)
-    queryParams.sortBy = Array.isArray(searchParams.sortBy)
-      ? (searchParams.sortBy[0] as any)
-      : (searchParams.sortBy as any);
-  if (searchParams.sortOrder)
-    queryParams.sortOrder = Array.isArray(searchParams.sortOrder)
-      ? (searchParams.sortOrder[0] as any)
-      : (searchParams.sortOrder as any);
-  if (searchParams.limit)
-    queryParams.limit = parseInt(
-      Array.isArray(searchParams.limit)
-        ? searchParams.limit[0]
-        : searchParams.limit,
-    );
-  if (searchParams.page)
-    queryParams.page = parseInt(
-      Array.isArray(searchParams.page)
-        ? searchParams.page[0]
-        : searchParams.page,
-    );
+  
+  // if (searchParams.name)
+  //   queryParams.name = Array.isArray(searchParams.name)
+  //     ? searchParams.name[0]
+  //     : searchParams.name;
+  // if (searchParams.region)
+  //   queryParams.region = Array.isArray(searchParams.region)
+  //     ? searchParams.region[0]
+  //     : searchParams.region;
+  // if (searchParams.minPrice)
+  //   queryParams.minPrice = parseFloat(
+  //     Array.isArray(searchParams.minPrice)
+  //       ? searchParams.minPrice[0]
+  //       : searchParams.minPrice,
+  //   );
+  // if (searchParams.maxPrice)
+  //   queryParams.maxPrice = parseFloat(
+  //     Array.isArray(searchParams.maxPrice)
+  //       ? searchParams.maxPrice[0]
+  //       : searchParams.maxPrice,
+  //   );
+  // if (searchParams.minRating)
+  //   queryParams.minRating = parseFloat(
+  //     Array.isArray(searchParams.minRating)
+  //       ? searchParams.minRating[0]
+  //       : searchParams.minRating,
+  //   );
 
   const campgroundsResponse = await getAllCampgrounds(queryParams);
 

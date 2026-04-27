@@ -1,5 +1,8 @@
 export type Role = "user" | "admin";
 
+export const REGIONS = ["Northern", "Northeastern", "Western", "Central", "Eastern", "South"] as const;
+export type Region = typeof REGIONS[number];
+
 export interface Booking {
   _id: string;
   bookDate: string;
@@ -21,8 +24,7 @@ export interface User {
   createdAt: string;
 }
 
-export interface Campground {
-  _id: string;
+export interface CampgroundModifiable {
   name: string;
   description: string;
   address: string;
@@ -30,9 +32,13 @@ export interface Campground {
   province: string;
   postalcode: string;
   tel: string;
-  region: string;
+  region: Region;
   pricePerNight: number;
   picture: string;
+}
+
+export interface Campground extends CampgroundModifiable {
+  _id: string;
   createdAt: string;
   avgRating: number;
   totalReviews: number;
