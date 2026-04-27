@@ -1,12 +1,14 @@
 'use client';
 
 import CampgroundCard from "../components/CampgroundCard";
-import { getAllCampgrounds } from "@/libs/campgrounds";
+import { deleteCampground, getAllCampgrounds } from "@/libs/campgrounds";
 import FilterBar, { FilterState } from "../components/FilterBar";
 import { Campground } from "@/libs/types";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function CampgroundsPage() {
+  const { data: session } = useSession();
 
   const [campgrounds, setCampgrounds] = useState<Campground[]>([])
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -18,26 +20,34 @@ export default function CampgroundsPage() {
     regions: [],
   });
   
-  useEffect(() => {
-    const fetchCampgrounds = async () => {
-      const campgroundsResponse = await getAllCampgrounds({
-        name: searchText || undefined, // empty string -> undefined
-        region: filters.regions || undefined, // empty list -> undefined
-        minPrice: filters.minPrice,
-        maxPrice: filters.maxPrice,
-        minRating: filters.minRating,
-        // maxRating: filters.maxRating,
-      })
-      
-      if (!campgroundsResponse.success) {
-        setErrorMsg(campgroundsResponse.message);
-        return;
-      }
-      
-      setCampgrounds(campgroundsResponse.data);
-    };
-    fetchCampgrounds();
-  }, [filters, searchText])
+  const fetchCampgrounds = async () => {
+    const campgroundsResponse = await getAllCampgrounds({
+      name: searchText || undefined, // empty string -> undefined
+      region: filters.regions || undefined, // empty list -> undefined
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      minRating: filters.minRating,
+      // maxRating: filters.maxRating,
+    })
+    
+    if (!campgroundsResponse.success) {
+      setErrorMsg(campgroundsResponse.message);
+      return;
+    }
+    
+    setCampgrounds(campgroundsResponse.data);
+  };
+  
+  useEffect(() => { fetchCampgrounds(); }, [filters, searchText])
+  
+  const handleDelete = async (_id: string) => {
+    if (!(session?.user as any)?.backendToken) return;
+
+    const result = await deleteCampground(_id, (session?.user as any).backendToken as string);
+
+    if (result.success) fetchCampgrounds(); 
+    else alert(result.message);
+  };
 
   if (errorMsg) {
     return (
@@ -79,6 +89,7 @@ export default function CampgroundsPage() {
           campgrounds.map((camp) => (
             <CampgroundCard
               key={camp._id}
+              handleDelete={handleDelete}
               campground={camp}
             />
           ))

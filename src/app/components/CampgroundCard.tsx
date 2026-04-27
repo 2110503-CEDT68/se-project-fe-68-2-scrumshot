@@ -1,14 +1,42 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import Rating from "@mui/material/Rating";
 import { Campground } from "@/libs/types";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { deleteCampground } from "@/libs/campgrounds";
+import DeleteCampgroundModal from "./DeleteCampgroundModal";
 
-export default function CampgroundCard({campground}: {campground: Campground}) {
-  const { _id, name, address, description, pricePerNight, picture, avgRating, totalReviews } = campground;
+export default function CampgroundCard({
+  campground,
+  handleDelete,
+}: {
+  campground: Campground;
+  handleDelete: (_id: string) => void;
+}) {
   
+  const {
+    _id,
+    name,
+    address,
+    description,
+    pricePerNight,
+    picture,
+    avgRating,
+    totalReviews,
+  } = campground;
+  
+  const router = useRouter();
+  
+  const { data: session } = useSession();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <div className="flex flex-col md:flex-row bg-white rounded-[20px] shadow-lg border border-blue-200 
-    overflow-hidden mb-6 p-6 gap-6">
+    <div
+      className="flex flex-col md:flex-row bg-white rounded-[20px] shadow-lg border border-blue-200 overflow-hidden mb-6 p-6 gap-6"
+    >
       <div className="relative w-full md:w-1/2 h-64 flex-shrink-0">
         <Image
           src={picture || "/img/banner.jpg"}
@@ -43,27 +71,41 @@ export default function CampgroundCard({campground}: {campground: Campground}) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-start gap-3">
+        <div className="flex flex-col sm:flex-row justify-between gap-3">
           <Link
-            href={`/campgrounds/${_id}/booking`}
-            className="w-full sm:w-auto"
+            href={`/campgrounds/${_id}`}
+            className="w-full sm:w-auto bg-[#6750A4] hover:bg-[#524082]
+              text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center
+              shadow-md transition-colors text-nowrap
+            "
           >
-            <button className="w-full sm:min-w-[280px] bg-[#6750A4] hover:bg-[#524082] 
-            text-white text-sm py-2 px-8 rounded-lg flex items-center justify-center
-            shadow-md transition-colors">
-              Book for {pricePerNight} Baht / Night
-              <span className="ml-2">✏️</span>
-            </button>
+            Book for {pricePerNight} Baht / Night
+            <span className="ml-2">✏️</span>
           </Link>
 
-          <Link href={`/campgrounds/${_id}/edit`} className="w-full sm:w-auto">
-            <button
-              className="w-full bg-transparent border border-[#FEA809]
-            text-[#FEA809] text-sm py-2 px-8 rounded-lg flex items-center justify-center
-            shadow-sm transition-colors hover:bg-[#FEA809] hover:text-white">
-              Edit
-            </button>
-          </Link>
+          {session?.user.role === "admin" && (
+            <>
+              <Link
+                href={`/campgrounds/${_id}/edit`}
+                className="bg-transparent border border-[#FEA809]
+                  text-[#FEA809] text-sm py-2 px-4 rounded-lg flex items-center justify-center
+                  shadow-sm transition-colors hover:bg-[#FEA809] hover:text-white "
+              >
+                Edit
+              </Link>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-transparent border border-red-500 cursor-pointer
+                  text-red-500 text-sm py-2 px-4 rounded-lg flex items-center justify-center
+                  shadow-sm transition-colors hover:bg-red-500 hover:text-white "
+              >
+                Delete
+              </button>
+              
+              <DeleteCampgroundModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={() => {handleDelete(_id); setIsModalOpen(false)}} />
+            </>
+          )}
         </div>
       </div>
     </div>

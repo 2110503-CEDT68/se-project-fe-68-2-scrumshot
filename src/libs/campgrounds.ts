@@ -3,7 +3,8 @@ import {
   APIResponseSingle,
   Campground,
   CampgroundQueryParams,
-  CampgroundModifiable
+  CampgroundModifiable,
+  APIResponseMessage
 } from "./types";
 import { fetchWrapper } from "./funcs";
 
@@ -74,6 +75,17 @@ export async function updateCampground(id: string, campground: CampgroundModifia
   );
 }
 
+export async function deleteCampground(id: string, token: string) {
+  return fetchWrapper<APIResponseSingle<{}>>(
+    `${backendUrl}/api/v1/campgrounds/${id}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    }
+  );
+}
 
 export function validateCampground(campground: CampgroundModifiable): [keyof CampgroundModifiable, string] | [null, null] {
   // returns the first invalid field and an error message, or [true, null] if valid

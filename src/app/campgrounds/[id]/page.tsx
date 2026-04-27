@@ -78,7 +78,7 @@ export default async function CampgroundDetailPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="flex justify-start mb-10">
+      <div className="flex justify-start items-center mb-10">
         <Link href={`/campgrounds/${campground._id}/booking`}>
           <button className="bg-[#6750A4] hover:bg-[#524082] text-white text-sm py-3 px-8 rounded-md shadow-lg transition-colors flex items-center gap-2">
             Book for {campground.pricePerNight} Baht / Night
