@@ -105,6 +105,24 @@ test.describe("Review deletion", () => {
     await expect(page.getByText(reviewComment)).not.toBeVisible();
   });
 
+  test("should NOT delete review when clicking cancel", async ({ page }) => {
+    await page.getByText("Review").scrollIntoViewIfNeeded();
+
+    await page.getByRole("button", { name: "Edit", exact: true }).click();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+
+    const modal = page.locator("div.fixed");
+    await expect(modal).toBeVisible();
+
+    await modal.getByRole("button", { name: "Cancel", exact: true }).click();
+
+    await expect(modal).not.toBeVisible();
+    await expect(page.getByText(reviewComment)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Edit", exact: true })
+    ).toBeVisible();
+  });
+
   test("should show warning when deleting admin-edited review", async ({ browser }) => {
     if (!currentBooking) throw new Error("Booking missing");
 
