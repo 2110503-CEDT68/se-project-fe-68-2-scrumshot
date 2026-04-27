@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CampgroundCard from "../components/CampgroundCard";
 import FilterBar, { FilterState } from "../components/FilterBar";
 import { Campground } from "@/libs/types";
+import { getAllCampgrounds } from "@/libs/campgrounds";
 
-interface CampgroundsClientProps {
-  campgrounds: Campground[];
-}
-
-export default function CampgroundsClient({ campgrounds }: CampgroundsClientProps) {
+export default function CampgroundsClient({ campgrounds: initialCampgrounds }: { campgrounds: Campground[] }) {
   const [searchText, setSearchText] = useState("");
+  const [campgrounds, setCampgrounds] = useState<Campground[]>(initialCampgrounds);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     minPrice: 0,
     maxPrice: 1000,
@@ -18,17 +17,35 @@ export default function CampgroundsClient({ campgrounds }: CampgroundsClientProp
     locations: [],
   });
 
-  // Filter logic — จะทำงานเต็มที่เมื่อ backend รองรับ query params
-  const filtered = campgrounds.filter((camp) => {
-    const matchSearch = camp.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchPrice =
-      camp.pricePerNight >= filters.minPrice && camp.pricePerNight <= filters.maxPrice;
-    const matchRating =
-      filters.minRating === 0 || (camp.avgRating ?? 0) >= filters.minRating;
-    const matchLocation =
-      filters.locations.length === 0 || filters.locations.includes(camp.region ?? "");
-    return matchSearch && matchPrice && matchRating && matchLocation;
-  });
+  const fetchFiltered = useCallback(async (f: FilterState) => {
+    setLoading(true);
+    try {
+      const res = await getAllCampgrounds({
+  minPrice: f.minPrice > 0 ? f.minPrice : undefined,
+  maxPrice: f.maxPrice < 1000 ? f.maxPrice : undefined,
+  minRating: f.minRating > 0 ? f.minRating : undefined,
+  regions: f.locations.length > 0 ? f.locations : undefined,
+});
+      if (res.success) setCampgrounds(res.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFiltered(filters);
+  }, [filters]);
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
+  // search ยังทำใน frontend รอเพื่อนทำ backend search
+  const filtered = campgrounds.filter((camp) =>
+    camp.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
@@ -49,12 +66,14 @@ export default function CampgroundsClient({ campgrounds }: CampgroundsClientProp
         </div>
 
         {/* Filter Dropdowns */}
-        <FilterBar onFilterChange={setFilters} />
+        <FilterBar onFilterChange={handleFilterChange} />
       </div>
 
       {/* Campground List */}
       <div className="flex flex-col gap-4">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-400 italic mt-10">Loading...</p>
+        ) : filtered.length === 0 ? (
           <p className="text-center text-gray-500 italic mt-10">No campgrounds found</p>
         ) : (
           filtered.map((camp) => (
