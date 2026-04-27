@@ -3,49 +3,82 @@
 import CampgroundCard from "../components/CampgroundCard";
 import { deleteCampground, getAllCampgrounds } from "@/libs/campgrounds";
 import FilterBar, { FilterState } from "../components/FilterBar";
+import SearchBar from "../components/SearchBar";
 import { Campground } from "@/libs/types";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
+function CampgroundCardSkeleton() {
+  return (
+    <div className="flex flex-col sm:flex-row rounded-[20px] shadow-lg overflow-hidden bg-white">
+      <div className="w-full sm:w-1/2 h-64 bg-gray-200 animate-pulse" />
+      <div className="flex-1 p-6 flex flex-col gap-3">
+        <div className="h-7 bg-gray-200 rounded-md animate-pulse w-3/4" />
+        <div className="h-4 bg-gray-200 rounded-md animate-pulse w-1/2" />
+        <div className="space-y-2 mt-1">
+          <div className="h-3 bg-gray-200 rounded-md animate-pulse" />
+          <div className="h-3 bg-gray-200 rounded-md animate-pulse w-5/6" />
+          <div className="h-3 bg-gray-200 rounded-md animate-pulse w-4/5" />
+        </div>
+        <div className="mt-auto flex justify-between items-center pt-4">
+          <div className="h-5 bg-gray-200 rounded-md animate-pulse w-24" />
+          <div className="h-10 bg-gray-200 rounded-[15px] animate-pulse w-32" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const DEFAULT_FILTERS: FilterState = {
+  minPrice: 0,
+  maxPrice: 1000,
+  minRating: 0,
+  regions: [],
+};
+
 export default function CampgroundsPage() {
   const { data: session } = useSession();
 
-  const [campgrounds, setCampgrounds] = useState<Campground[]>([])
+  const [campgrounds, setCampgrounds] = useState<Campground[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
-  const [filters, setFilters] = useState<FilterState>({
-    minPrice: 0,
-    maxPrice: 1000,
-    minRating: 0,
-    regions: [],
-  });
-  
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchText), 300);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
   const fetchCampgrounds = async () => {
+    setIsLoading(true);
     const campgroundsResponse = await getAllCampgrounds({
-      name: searchText || undefined, // empty string -> undefined
-      region: filters.regions || undefined, // empty list -> undefined
+      name: debouncedSearch || undefined,
+      region: filters.regions.length ? filters.regions : undefined,
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
       minRating: filters.minRating,
-      // maxRating: filters.maxRating,
-    })
-    
+    });
+
     if (!campgroundsResponse.success) {
       setErrorMsg(campgroundsResponse.message);
+      setIsLoading(false);
       return;
     }
-    
+
     setCampgrounds(campgroundsResponse.data);
+    setIsLoading(false);
   };
-  
-  useEffect(() => { fetchCampgrounds(); }, [filters, searchText])
-  
+
+  useEffect(() => { fetchCampgrounds(); }, [filters, debouncedSearch]);
+
   const handleDelete = async (_id: string) => {
     if (!(session?.user as any)?.backendToken) return;
 
     const result = await deleteCampground(_id, (session?.user as any).backendToken as string);
 
-    if (result.success) fetchCampgrounds(); 
+    if (result.success) fetchCampgrounds();
     else alert(result.message);
   };
 
@@ -60,31 +93,40 @@ export default function CampgroundsPage() {
     );
   }
 
+  const isFiltered =
+    !!debouncedSearch ||
+    filters.regions.length > 0 ||
+    filters.minPrice > DEFAULT_FILTERS.minPrice ||
+    filters.maxPrice < DEFAULT_FILTERS.maxPrice ||
+    filters.minRating > DEFAULT_FILTERS.minRating;
+
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-center mb-8">Available Campgrounds</h1>
 
       {/* Search + Filter Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
-        <div className="relative flex-1 w-full">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-          <input
-            type="text"
-            placeholder="Search for your campgrounds"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#6750A4]"
-          />
-        </div>
-
-        {/* Filter Dropdowns */}
+        <SearchBar value={searchText} onChange={setSearchText} />
         <FilterBar onFilterChange={setFilters} />
       </div>
 
       {/* Campground List */}
       <div className="flex flex-col gap-4">
-        {campgrounds.length === 0 ? (
-          <p className="text-center text-gray-500 italic mt-10">No campgrounds found</p>
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <CampgroundCardSkeleton key={i} />
+          ))
+        ) : campgrounds.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-lg font-semibold text-gray-700 mb-1">
+              {isFiltered ? "No campgrounds found" : "No campgrounds available"}
+            </p>
+            <p className="text-sm text-gray-500">
+              {isFiltered
+                ? "Try adjusting your search or filters."
+                : "Check back later for new campgrounds."}
+            </p>
+          </div>
         ) : (
           campgrounds.map((camp) => (
             <CampgroundCard
