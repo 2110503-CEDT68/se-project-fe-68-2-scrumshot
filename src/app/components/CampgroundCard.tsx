@@ -3,30 +3,9 @@ import Link from "next/link";
 import Rating from "@mui/material/Rating";
 import { Campground } from "@/libs/types";
 
-type CampgroundProps = Readonly<
-  Pick<
-    Campground,
-    | "_id"
-    | "name"
-    | "address"
-    | "description"
-    | "pricePerNight"
-    | "picture"
-    | "avgRating"
-    | "totalReviews"
-  >
->;
-
-export default function CampgroundCard({
-  _id,
-  name,
-  address,
-  description,
-  pricePerNight,
-  picture,
-  avgRating,
-  totalReviews,
-}: CampgroundProps) {
+export default function CampgroundCard({campground}: {campground: Campground}) {
+  const { _id, name, address, description, pricePerNight, picture, avgRating, totalReviews } = campground;
+  
   return (
     <div className="flex flex-col md:flex-row bg-white rounded-[20px] shadow-lg border border-blue-200 
     overflow-hidden mb-6 p-6 gap-6">

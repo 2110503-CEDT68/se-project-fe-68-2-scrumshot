@@ -51,20 +51,20 @@ export default function BookingPage({
       return;
     }
 
-    const today = dayjs().startOf("day");
-    if (bookDate.isBefore(today, "day") || bookEndDate.isBefore(today, "day")) {
-      alert(
-        "The booking date must be today or a future date. You cannot choose a date in the past.",
-      );
-      return;
-    }
+    // const today = dayjs().startOf("day");
+    // if (bookDate.isBefore(today, "day") || bookEndDate.isBefore(today, "day")) {
+    //   alert(
+    //     "The booking date must be today or a future date. You cannot choose a date in the past.",
+    //   );
+    //   return;
+    // }
 
     if (!bookDate.isBefore(bookEndDate, "day")) {
       alert("Start date must be before end date.");
       return;
     }
 
-    if (!session?.user?.backendToken) {
+    if (!session?.user?.backendToken) { // I don't think this condition is possible unless the user manually deletes his token
       alert("Please sign in to make a booking");
       return;
     }

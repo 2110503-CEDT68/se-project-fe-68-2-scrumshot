@@ -64,14 +64,7 @@ export default async function CampgroundsPage({
         {campgrounds.map((camp) => (
           <CampgroundCard
             key={camp._id}
-            _id={camp._id}
-            name={camp.name}
-            address={camp.address}
-            description={camp.description}
-            pricePerNight={camp.pricePerNight}
-            picture={camp.picture}
-            avgRating={camp.avgRating}
-            totalReviews={camp.totalReviews}
+            campground={camp}
           />
         ))}
       </div>
