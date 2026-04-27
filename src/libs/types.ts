@@ -46,7 +46,7 @@ export interface Campground extends CampgroundModifiable {
 
 export interface CampgroundQueryParams {
   name?: string; 
-  region?: string; 
+  region?: Region; 
   minPrice?: number; 
   maxPrice?: number; 
   minRating?: number;
