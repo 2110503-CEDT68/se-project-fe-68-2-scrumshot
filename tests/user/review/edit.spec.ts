@@ -133,6 +133,19 @@ test.describe("Review editing", () => {
     await expect(editButton).toBeVisible();
     await expect(updateButton).not.toBeVisible();
 
+    // Verify the updated comment persists after page reload
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+
+    // Re-locate elements after reload
+    const reloadedCommentInput = page.getByTestId("comment-input");
+    const reloadedEditButton = page.getByTestId("edit-review");
+
+    // Verify the updated comment is still displayed
+    await expect(reloadedCommentInput).toBeDisabled();
+    await expect(reloadedCommentInput).toHaveValue(NEW_COMMENT);
+    await expect(reloadedEditButton).toBeVisible();
+
     // Verify the review is updated by checking the campground page
     await page.goto(`/campgrounds/${currentCampground?._id}`);
 
