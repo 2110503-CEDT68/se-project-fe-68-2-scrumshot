@@ -12,6 +12,9 @@ export default async function Navbar() {
       <Link href="/account" className={linkClass}>{session?.user ? session.user.name: "Account"}</Link>
       <Link href="/bookings" className={linkClass}>Bookings</Link>
       <Link href="/campgrounds" className={linkClass}>Campgrounds</Link>
+      {(session?.user as any)?.role === 'admin' && (
+        <Link href="/campgrounds/create" className={linkClass}>Create</Link>
+      )}
     </div>
     
     <Link href="/">
