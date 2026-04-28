@@ -1,6 +1,6 @@
-import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
+import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
 
 /**
  * Read environment variables from file.
@@ -8,13 +8,13 @@ import path from 'path';
  */
 // import dotenv from 'dotenv';
 // import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '.env.local') });
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -24,50 +24,51 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  timeout: 60000, // Sets a 60-second timeout for every test
+  expect: {
+    timeout: 60000,
+  },
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://localhost:3000',
-
+    baseURL: "http://localhost:3000",
+    navigationTimeout: 60000,
+    actionTimeout: 60000,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
 
   /* Configure projects for major browsers */
   projects: [
-
     {
-      name: 'setup-user',
-      testMatch: 'auth/user.setup.ts', // /auth/user.setup.ts
-      use: { ...devices['Desktop Chrome'] },
+      name: "setup-user",
+      testMatch: "user/user.setup.ts",
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'setup-admin',
-      testMatch: 'auth/admin.setup.ts', // /auth/admin.setup.ts
-      use: { ...devices['Desktop Chrome'] },
+      name: "setup-admin",
+      testMatch: "admin/admin.setup.ts",
+      use: { ...devices["Desktop Chrome"] },
     },
-
-
     {
-      name: 'user-chromium',
-      dependencies: ['setup-user'],
-      testMatch: 'user/**/*.spec.ts', // /tests/user/*.spec.ts
+      name: "user-chromium",
+      dependencies: ["setup-user"],
+      testMatch: "user/**/*.spec.ts",
       use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/user.json",
       },
     },
     {
-      name: 'admin-chromium',
-      dependencies: ['setup-admin'],
-      testMatch: 'admin/**/*.spec.ts', // /tests/admin/*.spec.ts
+      name: "admin-chromium",
+      dependencies: ["setup-admin"],
+      testMatch: "admin/**/*.spec.ts",
       use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/admin.json',
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/admin.json",
       },
     },
-
   ],
 
   /* Run your local dev server before starting the tests */
