@@ -3,39 +3,30 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package manifests and lockfile for reproducible installs
 COPY package*.json ./
+COPY package-lock.json* ./
 
-# Install dependencies
+# Install dependencies and build
 RUN npm ci
-
-# Copy source code
 COPY . .
-
-# Build Next.js application
 RUN npm run build
 
-# Production stage
+# Production runner
 FROM node:20-alpine AS runner
 
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-# Copy package files
-COPY package*.json ./
+# Copy package manifests and install only production deps
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package-lock.json* ./
+RUN npm ci --only=production
 
-# Install production dependencies only and ensure TypeScript is available for next.config.ts
-RUN npm ci --only=production \
-  && npm install typescript --no-save
-
-# Copy built application from builder stage
+# Copy built app and static assets
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# Expose port
+# Expose port and run
 EXPOSE 3000
-
-# Start application
 CMD ["npm", "start"]
