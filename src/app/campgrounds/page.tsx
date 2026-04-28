@@ -7,6 +7,7 @@ import SearchBar from "../components/SearchBar";
 import { Campground } from "@/libs/types";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 function CampgroundCardSkeleton() {
   return (
@@ -103,6 +104,18 @@ export default function CampgroundsPage() {
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-center mb-8">Available Campgrounds</h1>
+
+      {/* Create Campground Button (Admin Only) */}
+      {(session?.user as any)?.role === 'admin' && (
+        <div className="flex justify-end mb-6">
+          <Link
+            href="/campgrounds/create"
+            className="bg-[#6750A4] text-white px-6 py-2 rounded-full font-semibold hover:bg-[#5a458c] transition-colors"
+          >
+            + Create Campground
+          </Link>
+        </div>
+      )}
 
       {/* Search + Filter Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
