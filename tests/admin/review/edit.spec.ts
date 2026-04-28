@@ -189,12 +189,10 @@ test.describe("Admin edit review", () => {
     await expect(commentInput).toBeEnabled();
     await commentInput.fill(ADMIN_COMMENT);
 
-    await Promise.all([
-      page.waitForResponse((res) =>
-        res.url().includes(`/bookings/${currentBooking!._id}/review`)
-      ),
-      page.getByTestId("update-review").click(),
-    ]);
+    await page.getByTestId("update-review").click();
+    await page.waitForResponse((res) =>
+      res.url().includes(`/bookings/${currentBooking!._id}/review`)
+    );
 
     await expect(page.getByText(ADMIN_COMMENT)).toBeVisible();
 

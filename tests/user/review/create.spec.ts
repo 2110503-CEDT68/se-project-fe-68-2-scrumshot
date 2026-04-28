@@ -82,51 +82,148 @@ test.describe("Review creation", () => {
 
     const editButton = page.getByTestId("edit-review"); // On page load it should have only edit button
     await expect(editButton).toBeVisible();
-    
+
     await editButton.click();
     await expect(commentInput).toBeEnabled();
 
     const createButton = page.getByTestId("create-review");
     await expect(createButton).toBeVisible();
-    
   });
-  
+
   test("should be able to create review", async ({ page }) => {
     const RATING = 4;
-    const COMMENT = "PLAYWRIGHT USER TEST REVIEW AT TIME " + new Date().getTime()
-    
+    const COMMENT =
+      "PLAYWRIGHT USER TEST REVIEW AT TIME " + new Date().getTime();
+
     const commentInput = page.getByTestId("comment-input");
     const editButton = page.getByTestId("edit-review");
     await editButton.click();
-    
+
     const ratingMUIComponent = page.getByTestId("star-rating");
-    const ratingInput = ratingMUIComponent.locator(`input[type='radio'][value='${RATING}']`);
-    const ratingInputLabel = ratingMUIComponent.locator(`label[for='${await ratingInput.getAttribute('id')}']`)
-    
+    const ratingInput = ratingMUIComponent.locator(
+      `input[type='radio'][value='${RATING}']`,
+    );
+    const ratingInputLabel = ratingMUIComponent.locator(
+      `label[for='${await ratingInput.getAttribute("id")}']`,
+    );
+
     await expect(ratingInputLabel).toBeVisible(); // We need to click the label becuase the button is hidden
-    await ratingInputLabel.click({delay: 100});
-    
+    await ratingInputLabel.click({ delay: 100 });
+
     await commentInput.fill(COMMENT);
     await expect(commentInput).toHaveValue(COMMENT);
-    
+
     const createButton = page.getByTestId("create-review");
     await createButton.click();
-    
+
     await expect(commentInput).toBeDisabled();
     await expect(editButton).toBeVisible();
-    await expect(createButton).not.toBeVisible(); 
-    
+    await expect(createButton).not.toBeVisible();
+
     // Check if the review is saved in the backend
     await page.goto(`/campgrounds/${currentCampground?._id}`);
-    
+
     const reviewCardLocator = page.getByTestId("review-card");
-    await reviewCardLocator.first().waitFor({ state: 'visible' }); // ensure at least one has loaded
-    
-    const correctReviewCard = reviewCardLocator.filter({ has: page.getByText(COMMENT) });
+    await reviewCardLocator.first().waitFor({ state: "visible" }); // ensure at least one has loaded
+
+    const correctReviewCard = reviewCardLocator.filter({
+      has: page.getByText(COMMENT),
+    });
     await expect(correctReviewCard).toBeVisible(); // is shown
-    
-    const reviewCardRating = correctReviewCard.locator(`[aria-label='${RATING} Stars']`);
+
+    const reviewCardRating = correctReviewCard.locator(
+      `[aria-label='${RATING} Stars']`,
+    );
     await expect(reviewCardRating).toBeVisible(); // correct rating (I physically don't know how to check this other than this method :/)
-    
+  });
+
+  test("should prevent user from creating a review on an ongoing booking", async ({
+    page,
+    request,
+    backendLink,
+    session,
+  }) => {
+    // Update the booking to be ongoing
+    let today = new Date();
+    let tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const updateBookingResponse = await request.put(
+      `${backendLink}/bookings/${currentBooking?._id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.backendToken}`,
+          "Content-Type": "application/json",
+        },
+        data: {
+          bookDate: today.toISOString().slice(0, 10),
+          bookEndDate: tomorrow.toISOString().slice(0, 10),
+        },
+      },
+    );
+
+    if (!updateBookingResponse.ok)
+      throw new Error("Failed to update booking to ongoing status");
+
+    currentBooking = (await updateBookingResponse.json()).data as Booking;
+
+    await page.goto(`/bookings/${currentBooking?._id}`);
+
+    // Attempt to make a review
+    const RATING = 4;
+    const COMMENT =
+      "PLAYWRIGHT USER TEST REVIEW AT TIME " + new Date().getTime();
+
+    const commentInput = page.getByTestId("comment-input");
+    const editButton = page.getByTestId("edit-review");
+    await editButton.click();
+
+    const ratingMUIComponent = page.getByTestId("star-rating");
+    const ratingInput = ratingMUIComponent.locator(
+      `input[type='radio'][value='${RATING}']`,
+    );
+    const ratingInputLabel = ratingMUIComponent.locator(
+      `label[for='${await ratingInput.getAttribute("id")}']`,
+    );
+
+    await expect(ratingInputLabel).toBeVisible(); // We need to click the label becuase the button is hidden
+    await ratingInputLabel.click({ delay: 100 });
+
+    await commentInput.fill(COMMENT);
+    await expect(commentInput).toHaveValue(COMMENT);
+
+    const createButton = page.getByTestId("create-review");
+
+    // Capture the dialog and response promises before clicking to avoid race conditions
+    const createReviewPromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/bookings/${currentBooking?._id}/review`) &&
+        response.request().method() === "POST",
+    );
+    const dialogPromise = page.waitForEvent("dialog");
+
+    await createButton.click();
+
+    // wait for response
+    const createReviewResponse = await createReviewPromise;
+    expect(createReviewResponse.status()).toBe(400);
+
+    // wait for dialog to appear
+    const dialog = await dialogPromise;
+    expect(dialog.type()).toBe("alert");
+    expect(dialog.message()).toBe(
+      "Cannot review a booking that has not ended yet",
+    );
+    await dialog.accept();
+
+    // Page should revert back to original state (comment input disabled, edit button visible, create button not visible)
+    await expect(commentInput).toBeDisabled();
+    await expect(commentInput).toHaveValue("");
+    await expect(editButton).toBeVisible();
+    await expect(createButton).not.toBeVisible();
+
+    await page.goto(`/campgrounds/${currentCampground?._id}`);
+    await expect(page.getByText("Review : ")).toBeVisible();
+    await expect(page.getByText(COMMENT)).toHaveCount(0);
   });
 });
