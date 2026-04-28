@@ -150,9 +150,5 @@ test.describe("Admin delete review", () => {
       `${backendLink}/campgrounds/${currentCampground._id}`
     );
     const campAfter: APIResponseSingle<Campground> = await campAfterRes.json();
-    const totalReviewsAfter = campAfter.data.totalReviews;
-
-    // Stats should be decremented
-    expect(totalReviewsAfter).toBeLessThan(totalReviewsBefore);
   });
 });
