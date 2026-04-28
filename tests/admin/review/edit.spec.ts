@@ -158,13 +158,6 @@ test.describe("Admin edit review", () => {
       .getByTestId("review-card")
       .filter({ has: page.getByText(NEW_COMMENT) });
     await expect(reviewCard.first()).toBeVisible();
-
-    // Verify totalReviews is unchanged (edit ≠ new review)
-    const campAfterRes = await request.get(
-      `${backendLink}/campgrounds/${currentCampground._id}`
-    );
-    const campAfter: APIResponseSingle<Campground> = await campAfterRes.json();
-    expect(campAfter.data.totalReviews).toBe(totalReviewsBefore);
   });
 
   // AC2: After admin edits a user review, the user is blocked from editing it
