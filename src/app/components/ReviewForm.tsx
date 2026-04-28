@@ -32,7 +32,7 @@ export default function ReviewForm({
   originalComment,
 }: ReviewFormProps) {
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const toggleEdit = () => {
     if (isEditing) {
       onRatingChange(originalRating ?? 0);
@@ -49,15 +49,13 @@ export default function ReviewForm({
   const handleOnDelete = async () => {
     await onDelete();
     setIsEditing(false);
-   };
-  
+  };
+
   return (
     <div className="w-full max-w-2xl rounded-md">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Review
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Review</h2>
         </div>
       </div>
 
@@ -78,6 +76,7 @@ export default function ReviewForm({
           onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
             onCommentChange(e.target.value)
           }
+          data-testid="comment-input"
           aria-label="Review text"
         />
       </div>
@@ -88,19 +87,22 @@ export default function ReviewForm({
             Delete
           </Button>
         ) : (
-          <p className="text-gray-500 italic text-center">This review has been deleted permanently</p>
+          <p className="text-gray-500 italic text-center">
+            This review has been deleted permanently
+          </p>
         )
       ) : isEditing ? (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
           <Button variant="contained" color="secondary" onClick={toggleEdit}>
             Cancel
           </Button>
           {alreadyHasReview ? (
-                <>
+            <>
               <Button
                 variant="contained"
                 color="error"
                 onClick={handleOnDelete}
+                data-testid="delete-review"
               >
                 Delete
               </Button>
@@ -108,22 +110,29 @@ export default function ReviewForm({
                 variant="contained"
                 color="success"
                 onClick={handleOnSubmit}
+                data-testid="update-review"
               >
                 Update
               </Button>
-                </>
+            </>
           ) : (
             <Button
               variant="contained"
               color="success"
               onClick={handleOnSubmit}
+              data-testid="create-review"
             >
               Create
             </Button>
           )}
-          </div>
+        </div>
       ) : (
-        <Button variant="contained" color="primary" onClick={toggleEdit}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={toggleEdit}
+          data-testid="edit-review"
+        >
           Edit
         </Button>
       )}

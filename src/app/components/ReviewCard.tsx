@@ -39,7 +39,7 @@ export default function ReviewCard({
   const displayReview = review;
   
   return (
-    <div className={`border p-5 rounded-md border-gray-200 ${isUserReview ? "bg-purple-50" : ""}`}>
+    <div className={`border p-5 rounded-md border-gray-200 ${isUserReview ? "bg-purple-50" : ""}`} data-testid="review-card">
       <div className="flex flex-row justify-between items-center gap-3 flex-wrap" >
         <div className="flex flex-row gap-3 items-center">
           <p className="text-lg font-semibold text-gray-900">
