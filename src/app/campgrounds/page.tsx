@@ -10,8 +10,8 @@ import { useSession } from "next-auth/react";
 
 function CampgroundCardSkeleton() {
   return (
-    <div className="flex flex-col sm:flex-row rounded-[20px] shadow-lg overflow-hidden bg-white">
-      <div className="w-full sm:w-1/2 h-64 bg-gray-200 animate-pulse" />
+    <div className="flex flex-col sm:flex-row rounded-[20px] shadow-lg overflow-hidden bg-white m-4">
+      <div className="w-full sm:w-1/2 h-74 bg-gray-200 animate-pulse" />
       <div className="flex-1 p-6 flex flex-col gap-3">
         <div className="h-7 bg-gray-200 rounded-md animate-pulse w-3/4" />
         <div className="h-4 bg-gray-200 rounded-md animate-pulse w-1/2" />
@@ -111,7 +111,7 @@ export default function CampgroundsPage() {
       </div>
 
       {/* Campground List */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <CampgroundCardSkeleton key={i} />
