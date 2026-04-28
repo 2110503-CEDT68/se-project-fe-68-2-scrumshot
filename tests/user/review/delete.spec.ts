@@ -53,7 +53,7 @@ test.describe("Review deletion", () => {
     reviewComment = "DELETE TEST " + Date.now();
 
     const reviewRes = await request.post(
-      `${backendLink}/bookings/${currentBooking._id}/review`,
+      `${backendLink}/bookings/${currentBooking?._id}/review`,
       {
         headers: {
           Authorization: `Bearer ${backendToken}`,
@@ -72,7 +72,7 @@ test.describe("Review deletion", () => {
     }
 
     // Step 4: Navigate to the booking detail page
-    await page.goto(`/bookings/${currentBooking._id}`);
+    await page.goto(`/bookings/${currentBooking?._id}`);
     await page.waitForLoadState("networkidle");
   });
 

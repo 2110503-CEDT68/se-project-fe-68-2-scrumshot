@@ -58,7 +58,7 @@
       },
       {
         name: "user-chromium",
-        dependencies: ["setup-user"],
+        dependencies: ["setup-user", "setup-user2"],
         testMatch: "user/**/*.spec.ts",
         use: {
           ...devices["Desktop Chrome"],
