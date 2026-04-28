@@ -22,7 +22,9 @@ export default function PrivacyPolicy() {
                 To provide a secure booking and review experience, we collect
                 the following personal information during account registration:
                 Full Name, Telephone Number, Email Address and Encrypted
-                Password
+                Password. This information is for use in signing you in and for
+                contact purposes. The Full Name will be publicly visible once
+                you publish a review.
               </p>
             </section>
 
@@ -70,7 +72,8 @@ export default function PrivacyPolicy() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <span className="font-bold">Bookings:</span> You may view,
-                  edit, or delete your own reservations at any time.
+                  edit, or delete your own reservations at any time. However,
+                  your booking will be locked once you create a review
                 </li>
                 <li>
                   <span className="font-bold">Reviews:</span> You have the right
@@ -78,7 +81,7 @@ export default function PrivacyPolicy() {
                   remove your public profile.
                 </li>
                 <li>
-                  <span className="font-bold">Stats:</span> Deleting a review
+                  <span className="font-bold">Stats:</span> Updating or deleting a review
                   will automatically trigger an update to the campground’s
                   overall statistics.
                 </li>
